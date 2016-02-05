@@ -9,7 +9,7 @@ Later last year I somehow became very enthusiastic on taking photos. Carried my 
 
 Quite soon after all these, around the start of November last year, I felt really tired and lost at work so I went home for some rest. During that time I accidentally catched a funeral of a friend's father (actually my father's friend, but quite close to me as well) at Puyang, where my father grow up and started his business. And how lucky I was that my father's another friend there HAS a FM2, and he was very generous and glad to lend me it for some time.
 
-So yep, god bless me, I got just that magical craft in like under a month since when I really know anything practically about film photography. And I've been carrying it with me truly 24x7, being a true beginner to film photography, some of the shots are not appealing, some others really amazed me, and I think I am getting better with every roll.
+So yep, god bless me, I got just that magical craft in like under a month since when I really know anything practically about film photography. And I've been carrying it with me truly 24x7. Being a true beginner to film photography, some of the shots are not appealing, some others really amazed me, and I think I am getting better with every roll.
 
 Recently Shanghai has been so cold that I don't really want to go out and shoot things. So instead of actually using up my a few rolls remained, I wanted to look back and write down some thoughts on these rolls I've used during the last 2 months of 2015.
 
@@ -59,7 +59,7 @@ Look at how the hairs are lighted up with those awesome golden sheen. It feels w
 
 > Sharp enough and usable under any condition
 
-I have to salute the guys at Ilford, when noticing it's a company all-in for B&W films. And PAN 400 is what I started with among all their awesome films. Because the previous several rolls are all ISO 200, making them next to useless at night, I wonder if 400 could perform well enough at night.
+I have to salute the guys at ILFORD, when noticing it's a company all-in for B&W films. And PAN 400 is what I started with among all their awesome films. Because the previous several rolls are all ISO 200, making them next to useless at night, I wonder if 400 could perform well enough at night.
 
 In fact, the ILFORD PAN 400 astonished me on how well it could fit at almost any time, any place.
 
@@ -67,7 +67,7 @@ It's good for indoor with okayish light.
 
 <a data-flickr-embed="true"  href="https://www.flickr.com/photos/aquarhead/23597335826/in/album-72157660569547969/" title="Untitled"><img src="https://farm1.staticflickr.com/685/23597335826_f3ca70e99e_c.jpg" width="800" height="530" alt="Untitled"></a><script async src="//embedr.flickr.com/assets/client-code.js" charset="utf-8"></script>
 
-Or outdoor with not-so-great weather.
+Or outdoor in a not-so-great weather.
 
 <a data-flickr-embed="true"  href="https://www.flickr.com/photos/aquarhead/23597313296/in/album-72157660569547969/" title="Untitled"><img src="https://farm1.staticflickr.com/734/23597313296_e309898358_c.jpg" width="800" height="530" alt="Untitled"></a><script async src="//embedr.flickr.com/assets/client-code.js" charset="utf-8"></script>
 
@@ -85,7 +85,7 @@ Even into water!
 
 Seeing the photos after [the lab](https://filmpark.taobao.com) sent them back, I was so amazed by just how well it could perform under almost any condition, and before this roll I never thought shooting B&W could be this much fun.
 
-PAN 400 is also sharp enough, in fact after seeing some of the photos I was wondering how better could their Pan 100 could be.
+PAN 400 is also sharp enough, in fact after seeing some of the photos I was wondering how better could their PAN 100 be.
 
 <a data-flickr-embed="true"  href="https://www.flickr.com/photos/aquarhead/23255117129/in/album-72157660569547969/" title="Untitled"><img src="https://farm1.staticflickr.com/667/23255117129_c089737512_c.jpg" width="800" height="530" alt="Untitled"></a><script async src="//embedr.flickr.com/assets/client-code.js" charset="utf-8"></script>
 
@@ -93,7 +93,7 @@ PAN 400 is also sharp enough, in fact after seeing some of the photos I was wond
 
 > Bright & colorful
 
-The first ISO 100 film I tried, and quite good despite being cheaply packaged (フジフイルム業務用フィルム means for bulky usage of professional photographers/studios). It produces brighter and more colorful photos.
+The first ISO 100 film I tried, and quite good despite being cheaply packaged (フジフイルム業務用フィルム means for bulky usage by professional photographers/studios). It produces brighter and more colorful photos.
 
 <a data-flickr-embed="true" data-footer="true"  href="https://www.flickr.com/photos/aquarhead/22996580843/in/album-72157660569547969/" title="CCP Shanghai Downstairs"><img src="https://farm6.staticflickr.com/5694/22996580843_38777094ba_c.jpg" width="800" height="530" alt="CCP Shanghai Downstairs"></a><script async src="//embedr.flickr.com/assets/client-code.js" charset="utf-8"></script>
 
@@ -129,7 +129,7 @@ I think that's another side of photography, each photo you take is a moment froz
 
 > Not a bad choice for moments in the dark
 
-The cool thing about film cameras is that by loading a different film, it's like replacing the sensor on a DSLR. All these films not only have different ISO, different brand and name, they have their own "personality". And once you come to know one, you'll notice it changes how you perceive each scene, how you want to shoot, it's really interesting and exciting.
+The cool thing about film cameras is that by loading a different film, it's almost like replacing the sensor on a DSLR. All these films not only have different ISO, different brand and name, they have their own "personality". And once you come to know one, you'll notice it changes how you perceive each scene, how you want to shoot, it's really interesting and exciting.
 
 <a data-flickr-embed="true"  href="https://www.flickr.com/photos/aquarhead/23776176561/in/album-72157660569547969/" title="Untitled"><img src="https://farm6.staticflickr.com/5829/23776176561_5b81703e30_c.jpg" width="800" height="538" alt="Untitled"></a><script async src="//embedr.flickr.com/assets/client-code.js" charset="utf-8"></script>
 
@@ -143,6 +143,6 @@ I bought 2 rolls, and only used 1.3 or so during the party. So I shot the remain
 
 <a data-flickr-embed="true" data-footer="true"  href="https://www.flickr.com/photos/aquarhead/24020909330/in/album-72157660569547969/" title="At Night, In Starbucks"><img src="https://farm2.staticflickr.com/1673/24020909330_ebcc445d8a_c.jpg" width="800" height="530" alt="At Night, In Starbucks"></a><script async src="//embedr.flickr.com/assets/client-code.js" charset="utf-8"></script>
 
-The only thing is as an ISO 3200 film, it "expires" really fast, I think the 2nd roll didn't perform as well as the 1st because I used almost three weeks to finish it. Still, I'm proud of this true "street photography" in my heart taken with it.
+The only thing is as an ISO 3200 film, it "expires" really fast, I think the 2nd roll didn't perform as well as the 1st because I used almost three weeks to finish it. Still, I'm proud of this true "street photography" (as in my heart) taken with it.
 
 <a data-flickr-embed="true" data-footer="true"  href="https://www.flickr.com/photos/aquarhead/24316598675/in/album-72157660569547969/" title="His Dream House"><img src="https://farm2.staticflickr.com/1591/24316598675_7ca64c1e71_c.jpg" width="530" height="800" alt="His Dream House"></a><script async src="//embedr.flickr.com/assets/client-code.js" charset="utf-8"></script>
