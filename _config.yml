@@ -6,6 +6,7 @@ description: >
   “星のない空に輝く光を”
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "http://blog.aquarhead.me" # the base hostname & protocol for your site
+port: 4001
 twitter_username: aquarhead
 github_username:  aquarhead
 
