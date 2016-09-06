@@ -1,6 +1,8 @@
 ---
 layout: post
 title: Beginning an Adventure with Films
+publish: true
+cn: false
 ---
 
 ## Prologue
