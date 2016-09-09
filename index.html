@@ -6,7 +6,7 @@ layout: default
 
   <ul class="post-list">
     {% for post in site.posts %}
-      {% if post.publish and post.cn != true %}
+      {% unless post.cn %}
         <li>
           <span class="post-meta">{{ post.date | date: "%b %-d, %Y" }}</span>
 
@@ -14,7 +14,7 @@ layout: default
             <a class="post-link" href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
           </h2>
         </li>
-      {% endif %}
+      {% endunless %}
     {% endfor %}
   </ul>
 
