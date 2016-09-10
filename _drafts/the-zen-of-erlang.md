@@ -79,21 +79,33 @@ Message passing is the most intuitive form of communication in a concurrent envi
 
 A critical aspect of all this message passing, especially in the olden days, is that everything was asynchronous, and with the messages being copied. No one would stand on their porch for days waiting for the courier to come back, and no one (I suspect) would sit by the semaphore towers waiting for responses to come back. You'd send the message, go back to your daily activities, and eventually someone would tell you you got an answer back.
 
-
+这种消息传递的方式很重要的一点 - 特别是在旧时代 - 就是大家都是｢异步｣的, 只有消息被｢复制｣了. 一般没人会一直站在门口等待回信, 也不会有人一直守在信号塔上等待回复. 你发出一条消息, 接着干平常的事情, 当有回复的时候自会有人通知你.
 
 This is good because if the other party doesn't respond, you're not stuck doing nothing but waiting on your porch until you die. Conversely, the receiver on the other end of the communication channel does not see the freshly arrived message vanish or change as by magic if you do die. Data should be copied when messages are sent. These two principles ensure that failure during communication does not yield a corrupted or unrecoverable state. Erlang implements both of these.
 
+这种方式的好处在于如果对方迟迟没有回应, 你不会什么也不做一直等到世界末日. 同样的, 即使发信人突然死掉了, 收信人所收到的信息也不会因此消失或者被什么魔法篡改. 这两条准则可以保证通信时的故障不会产生损坏的或无法恢复的状态. Erlang 将这两条准则都实现了.
+
 To read messages, each process has a single mailbox. Everyone can write to a process' mailbox, but only the owner can look into it. The messages are by default read in the order they arrived, but it is possible, through features such as pattern matching [which were discussed in a prior talk during the day] to only or temporarily focus on one kind of message and drive various priorities around.
+
+每个进程都会从自己的｢信箱｣中读取消息. 一个进程可以向任意其他进程的信箱中写入消息, 但只能读取自己的信箱中收到的消息. 默认情况下进程会按照消息被收到的顺序依次读取, 但也可以通过模式匹配 (pattern matching [^3]) 之类的方式来重点关注某些消息.
 
 ![Links & Monitors](/static/zen_of_erlang/007.png)
 
 Some of you will have noticed something in what I have mentioned so far; I keep repeating that isolation and independence are great so components of a system are allowed to die and crash without influencing others, but I did also mention having conversations across many processes or agents.
 
+可能在座的有些人从我刚刚所讲过的内容中听出了什么端倪. 我一直反复地讲隔离性和独立性多么多么的好, 它们能让一个系统的各个组件崩溃挂掉却不会影响到其他部分. 但同时我又讲了这么多进程之间该如何通信.
+
 Every time two processes start having a conversation, we create an implicit dependency between them. There is some implicit state in the system that binds both of them together. If process A sends a message to process B and B dies without responding, A can either wait forever, or give up on having a conversation after a while. The latter is a valid strategy, but it's a very vague one: it is unclear if the remote end has died or is just taking long, and off-band messages can land in your mailbox.
+
+每当两个进程之间有所通信的时候, 我们实际上就隐式地在两者之间创建了｢依赖｣. 这种依赖可以说在系统中也留下了隐式的｢状态｣. 如果进程 A 发给进程 B 一条消息, 然而 B 还没回应就挂掉了, 这时候 A 有两种选择, 要么一直等下去, 要么等一段时间后就放弃. 一般来说后面这种比较可取, 但这种策略还不够明确: 即我们无法确切地得知究竟 B 真的挂掉了还是只是这一条消息要花比较久才能够回复, 如果只是计算较慢可能在 A 放弃后 B 才发来回复, 这种情况下这条回复就会永远留在 A 的信箱里无人处理了.
 
 Instead Erlang gives us two mechanisms to deal with this: monitors and links.
 
+但不必担心, Erlang 提供了两种机制来处理这种情况: 监控 (monitor) 和链接 (link).
+
 Monitors are all about being an observer, a creeper. You decide to keep an eye on a process, and if it dies for whatever reason, you get a message in your mailbox telling you about it. You can then react to this and make decisions with your newly found information. The other process will never have had an idea you were doing all of this. Monitors are therefore fairly decent if you're an observer or care about the state of a peer.
+
+监控诚如其名, 就是让一个进程变成观察者, 监控者. 你可以一直关注某个进程, 要是它因为什么原因挂掉了, 你就会收到一条消息
 
 Links are bidirectional, and setting one up binds the destiny of the two processes between which they are established. Whenever a process dies, all the linked processes receive an exit signal. That exit signal will in turn kill the other processes.
 
@@ -319,4 +331,5 @@ That sounds simple, but it's surprisingly good; if you feel that your well-under
 That’s the Zen of Erlang: building interactions first, making sure the worst that can happen is still okay. Then there will be few faults or failures in your system to make you nervous (and when it happens, you can introspect everything at run time!) You can sit back and relax.
 
 [^1]: 实在是不了解这些术语是怎么翻译的...
-[^2]: 非一般的进程!
+[^2]: Erlang 的进程不同于一般概念中的｢操作系统进程｣, 下文若非明确提及, ｢进程｣皆特指 Erlang 进程
+[^3]: Pattern Matching 是 Erlang 很｢独特｣同时也非常强大的一个特性, 其直接导致了 Erlang 中函数的写法有别于很多更为常见的语言. 若想详细了解建议阅读 Erlang 或 Elixir 相关的书籍或在线教程等
