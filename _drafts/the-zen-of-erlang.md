@@ -101,31 +101,50 @@ Every time two processes start having a conversation, we create an implicit depe
 
 Instead Erlang gives us two mechanisms to deal with this: monitors and links.
 
-但不必担心, Erlang 提供了两种机制来处理这种情况: 监控 (monitor) 和链接 (link).
+不过无需担心, Erlang 提供了两种机制来处理这种情况: 监控 (monitor) 和链接 (link).
 
 Monitors are all about being an observer, a creeper. You decide to keep an eye on a process, and if it dies for whatever reason, you get a message in your mailbox telling you about it. You can then react to this and make decisions with your newly found information. The other process will never have had an idea you were doing all of this. Monitors are therefore fairly decent if you're an observer or care about the state of a peer.
 
-监控诚如其名, 就是让一个进程变成观察者, 监控者. 你可以一直关注某个进程, 要是它因为什么原因挂掉了, 你就会收到一条消息
+监控诚如其名, 就是让一个进程变成观察者. 你可以一直关注某个进程, 一旦它挂掉了, 你就会收到一条包含具体原因的消息. 之后你就可以根据消息中提供的信息决定要采取些什么对策. 被监控的进程完全不会知晓你所在做的这些事. 所以如果你在意某个进程的死活, 监控是一种蛮不错的手段.
 
 Links are bidirectional, and setting one up binds the destiny of the two processes between which they are established. Whenever a process dies, all the linked processes receive an exit signal. That exit signal will in turn kill the other processes.
 
+链接则是双向的, 设置了链接的两个进程的｢命运｣将紧密相连. 一旦其中一个进程挂掉, 所有与其建立了链接的进程都会收到退出信号, 从而跟随这个进程一同死掉.
+
 Now this gets to be really interesting because I can use monitors to quickly detect failures, and I can use links as an architectural construct letting me tie multiple processes together so they fail as a unit. Whenever my independent building blocks start having dependencies among themselves, I can start codifying that into my program. This is useful because I prevent my system from accidentally crashing into unstable partial states. Links are a tool letting developers ensure that in the end, when a thing fails, it fails entirely and leaves behind a clean slate, still without impacting components that are not involved in the exercise.
+
+现在我们可以用监控来快速检测故障, 还可以用链接作为一种组建架构的手段, 将若干个进程绑定在一起, 有故障时一齐杀掉. 当系统中原本独立的模块开始彼此产生依赖时, 我可以将这种依赖写入程序代码中. 而这可以防止系统由于意外的崩溃进入不稳定的或不完整的状态. 链接作为一种工具可以让开发者确保当系统的一部分有故障时, 这一部分会整个关闭而不会污染整个系统的状态, 同时也不会殃及与这部分本不相关的其他组件.
 
 For this slide, I picked a picture of mountain climbers roped together. Now if mountain climbers only had links between them, they would be in a sorry state. Every time a climber from your team would slip, the rest of the team would instantly die. Not a great way to go about things.
 
+这一页的图片是几个以绳子互相绑在一起的登山者们. 假如说这些登山者们只有链接的话那就太悲剧了. 因为一旦一个人打滑了可能整个团队都要死于非命. 这听起来可不怎么好.
+
 Erlang instead lets you specify that some processes are special and can be flagged with a `trap_exit` option. They can then take the exit signals sent over links and transform them into messages. This lets them recover faults and possibly boot a new process to do the work of the former one. Unlike mountain climbers, a special process of that kind cannot prevent a peer from crashing; that is the responsibility of that peer by using `try ... catch` expressions, for example. A process that traps exits still has no way to go play in another one's memory and save it, but it can avoid dying of it.
 
+实际上 Erlang 可以让你指定一些特殊的进程, 通过一个叫 `trap_exit` 的选项. 这些特殊进程可以捕获链接所导致的退出信号, 并把它们转换为消息. 从而它们可以修复一些故障, 比如说启动新的进程来继续挂掉的进程的工作. 不像真正的登山者那样, 这样的特殊进程并不能阻止与其链接的进程崩溃 - 要阻止崩溃你可能需要写类似 `try ... catch` 之类的语句, 当然是在可能会崩溃的那个进程里 - 一个激活了｢捕获退出信号｣的特殊进程不能进入其他进程的内存然后阻止其崩溃, 但却可以避免它｢灭亡｣. 
+
 This turns out to be a critical feature to implement supervisors. If you haven't heard of them, we'll get to them soon enough.
+
+这是实现｢监督者｣ (supervisor) 的一个重要特性. 别着急我们马上就会聊到它们了.
 
 ![Preemptive Scheduling](/static/zen_of_erlang/008.png)
 
 Before going to supervisors, we still have a few ingredients to be able to successfully cook a system that leverages crashes to its own benefit. One of them is related to how processes are scheduled. For this one, the real world use case I want to refer to is Apollo 11's lunar landing.
 
+讲解监督者之前, 我们还需要再聊几样东西, 少了它们还是没法真正地｢化崩溃为神奇｣. 首先是进程如何调度, 我就拿阿波罗 11 的月球登陆来举例吧.
+
 Apollo 11 is the mission that went to the moon in '69. In the slide right there, we see the lunar module with Buzz Aldrin and Neil Armstrong on board, with a photo taken by a person I assume to be Michael Collins, who stayed in the command module for the mission.
+
+阿波罗 11 是 69 年的一项登月任务. 图片中我们看到巴兹·奥尔德林和尼尔·阿姆斯特朗所乘坐的登月舱, 照片本身应该是留在指令舱的迈克尔·科林斯拍下的.
 
 While on their way to land on the moon, the lunar module was being guided by the Apollo PGNCS (Primary Guidance, Navigation and Control System). The guidance system had multiple tasks running on it, taking a carefully accounted for number of cycles. NASA had also specified that the processor was only to be used to 85% capacity, leaving 15% free.
 
+登月舱飞往月球时应该是由 Apollo PGNCS (Primary Guidance, Navigation and Control System) 所引导的. 导航系统要同时运行若干个任务, 每个任务都有严格分配的循环数. NASA 特别指定了处理器只能用 85% 的运算力, 剩余的 15% 以应对紧急情况.
+
 Now because the astronauts in this case wanted a decent backup plan in case they needed to abort, they had left a rendezvous radar up in case it would come in handy. That took up a decent chunk of the capacity the CPU had left. As Buzz Aldrin started entering commands, error messages would pop up about overflow and basically going out of capacity. If the system was going haywire on this, it possibly couldn't do its job and we could end up with two dead astronauts.
+
+
+交会雷达
 
 This was mostly because the radar had known hardware bugs causing its frequency to be mismatched with the guidance computer, and caused it to steal far more cycles than it should have had otherwise. Now NASA people weren't idiots, and they reused components with which they knew the rare bugs they had rather than just greenfielding new tech for such a critical mission, but more importantly, they had devised priority scheduling.
 
