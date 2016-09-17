@@ -4,8 +4,15 @@ title: Erlang 之禅
 cn: true
 ---
 
-> ##### 写在前面
-> 本文是在原作者 Fred Hebert 先生的许可下, 对 [_The Zen of Erlang_](http://ferd.ca/the-zen-of-erlang.html) 的简体中文翻译. 我从原文中获益良多, 也曾受其启发在 [Elixir Shanghai](http://www.meetup.com/Elixir-Shanghai/) 的[第二次聚会](http://www.meetup.com/Elixir-Shanghai/events/232775992/)上分享了一个题为 [_Defensive Programming vs. Let It Crash_ 的演讲](https://speakerdeck.com/aquarhead/defensive-programming-vs-let-it-crash), 从另一个角度切入分享了我对于 Erlang/OTP 所带来的编程方式的感悟. 我也希望通过这篇译文尽我所能地为中文世界的｢编程者｣们从较高的层次｢深入｣介绍 Erlang/OTP.
+> 本文是在原作者 Fred Hebert 先生的许可下, 对 [_The Zen of Erlang_](http://ferd.ca/the-zen-of-erlang.html) 的简体中文翻译.
+> 
+> 我从原文中获益良多, 也曾受其启发在 [Elixir Shanghai](http://www.meetup.com/Elixir-Shanghai/) 的[第二次聚会](http://www.meetup.com/Elixir-Shanghai/events/232775992/)上分享了一个题为 [_Defensive Programming vs. Let It Crash_ 的演讲](https://speakerdeck.com/aquarhead/defensive-programming-vs-let-it-crash), 从另一个角度切入分享了我的一些感悟.
+> 
+> 虽说本文对所有想了解 Erlang 的人都十分值得一读, 我个人觉得对那些接触了 Erlang 或 Elixir 却觉得没有以 Erlang/OTP 的思路在架构程序的人们或许更有用.
+> 
+> 文中原作者的一些比喻也许有些冗长 - 我的翻译也深受文字功底所限, 很是拙劣生硬, 所以那些部分随便看看就好不必较真 - 但有关 Erlang/OTP 的部分都很有仔细研读的价值.
+> 
+> 衷心希望这篇译文能对中文世界的｢编程者｣们有所帮助.
 
 原文发表于 2016年02月08日
 
@@ -187,19 +194,31 @@ Erlang 不但认识到分布式的重要性, 还提供了一整套文档完善�
 
 So those are all the basic ingredients in the recipe for Erlang Zen. The whole language is built with the purpose of taking crashes and failures, and making them so manageable it becomes possible to use them as a tool. Let it crash starts making sense, and the principles seen here are for the most part things that can be reused as inspiration in non-Erlang systems.
 
+那么这些就是 Erlang ｢禅宗｣的一些基本要素. 整个语言构建在处理崩溃之上, 将它们变的如此可控从而可以当作一种组建系统的工具. Let it crash 开始有那么点儿道理了, 这里面的一些原理也可以作为其他非 Erlang 系统的灵感.
+
 How to compose them together is the next challenge.
+
+如果将所有这些要素融合在一起是下一个挑战.
 
 ![Supervision Trees](/static/zen_of_erlang/011.png)
 
 Supervision trees is how you impose structure to your Erlang programs. They start with a simple concept, a supervisor, whose only job is to start processes, look at them, and restart them when they fail. By the way, supervisor are one of the core components of 'OTP', the general development framework used in the name 'Erlang/OTP'.
 
+监督树是在 Erlang 程序中添加结构的方式. 它们从监督者这个简单的概念开始, 还记得吧, 监督者唯一的工作就是启动子进程, 监控它们, 但它们出故障时重启. [^4]
+
 The objective of doing that is to create a hierarchy, where all the important stuff that must be very solid accumulate closer to the root of the tree, and all the fickle stuff, the moving parts, accumulate at the leaves of the tree. In fact, that's what most trees look like in real life: the leaves are mobile, there's a lot of them, they can all fall down in autumn, the tree stays alive.
 
+如此, 我们可以构建这样的一个层级关系, 那些非常重要的, 必须十分可靠的东西靠近树根, 而那些易变的部分聚集在树叶附近. 这其实跟现实世界中的大多数树很像: 树叶是活动的, 树叶很多, 树叶秋天的时候全都掉下来了, 然而树本身一直活着.
+
 That means that when you structure Erlang programs, everything you feel is fragile and should be allowed to fail has to move deeper into the hierarchy, and what is stable and critical needs to be reliable is higher up.
+
+所以当你组织 Erlang 程序的时候, 那些你感觉不稳固的和可以出错的部分要尽可能放在较低的层级, 在高的层级上放那些需要稳定性的重要的部分.
 
 ![Supervisors](/static/zen_of_erlang/012.png)
 
 Supervisors can do that through usage of links and trapping exits. Their job begins with starting their children in order, depth-first, from left to right. Only once a child is fully started does it go back up a level and start the next one. Each child is automatically linked.
+
+监督者主要使用链接和退出信号捕获. 它们的工作首先是从左至右, 以深度优先逐次启动其子进程. 只有前一个子进程完全启动成功时它才会进一步启动下一个子进程. 每一个子进程都会自动链接到监督者.
 
 Whenever a child dies, one of three strategies is chosen. The first one on the slide is 'one for one', enacted by only replacing the child process that died. This is a strategy to use whenever the children of that supervisor are independent from each other.
 
@@ -369,3 +388,4 @@ That’s the Zen of Erlang: building interactions first, making sure the worst t
 [^1]: 实在是不了解这些术语是怎么翻译的...
 [^2]: Erlang 的进程不同于一般概念中的｢操作系统进程｣, 下文若非明确提及, ｢进程｣皆特指 Erlang 进程
 [^3]: Pattern Matching 是 Erlang 很｢独特｣同时也非常强大的一个特性, 其直接导致了 Erlang 中函数的写法有别于很多更为常见的语言. 若想详细了解建议阅读 Erlang 或 Elixir 相关的书籍或在线教程等
+[^4]: 监督者是 OTP 的一个核心组件, OTP 是 Erlang/OTP 这个常常写在一起的名字里面表示一个通用开发平台的那部分. (虽然全称是 Open Telecom Platform, 但现在一般不在意这层意思, 只称为 OTP)
