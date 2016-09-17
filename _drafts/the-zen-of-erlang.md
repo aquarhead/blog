@@ -143,28 +143,45 @@ While on their way to land on the moon, the lunar module was being guided by the
 
 Now because the astronauts in this case wanted a decent backup plan in case they needed to abort, they had left a rendezvous radar up in case it would come in handy. That took up a decent chunk of the capacity the CPU had left. As Buzz Aldrin started entering commands, error messages would pop up about overflow and basically going out of capacity. If the system was going haywire on this, it possibly couldn't do its job and we could end up with two dead astronauts.
 
-
-交会雷达
+宇航员们想制订一个比较稳妥的备用计划来应对任务中止的情况, 他们预留了一个也许会有用的交会雷达. 那家伙用了 CPU 剩余性能的一大部分. 当巴兹·奥尔德林开始输入命令的时候, 各种关于溢出和资源耗尽的错误信息层出不穷. 假如这时候系统失去控制的话, 可能其他组件就无法完成它们的任务, 最后我们就要面对两具宇航员的尸体了.
 
 This was mostly because the radar had known hardware bugs causing its frequency to be mismatched with the guidance computer, and caused it to steal far more cycles than it should have had otherwise. Now NASA people weren't idiots, and they reused components with which they knew the rare bugs they had rather than just greenfielding new tech for such a critical mission, but more importantly, they had devised priority scheduling.
 
+这主要是因为那个雷达有已知的硬件问题, 导致其频率和导航电脑的不符, 进而导致其使用了远多于应该使用的 CPU 循环. 不过 NASA 的人也不是笨蛋, 他们没有为这种重量级的任务去开发过多的新技术, 而是再利用了以前的组件, 那些就算是稀有故障他们也了如指掌的东西. 更重要的是, 他们发明了｢优先级调度｣.
+
 This meant that even in the case where either this radar or possibly the commands entered were overloading the processor, if their priority were too low compared to the absolutely life-critical stuff, the task would get killed to give CPU cycles to what really, really needed it. That was in 1969; today there's still plenty of languages or frameworks that give you only cooperative scheduling and nothing else.
+
+这意味着导致了处理器过载的不论是这个有故障的雷达或者甚至是宇航员所输入的命令, 只要其优先级与那些绝对重要的东西比起来足够低的话, 系统就会杀掉这些任务, 而给那些真正需要的任务腾出 CPU 循环. 那还是 1969 年; 时至今日还有好多语言或框架只提供了协同调度.
 
 Erlang is not a language you'd use for life-critical systems — it only respects soft-real time constraints, not hard real time ones and it just wouldn't be a good idea to use it in these scenarios. But Erlang does provide you with preemptive scheduling, and with process priorities. This means that you do not have to care, as a developer or system designer, about making sure that absolutely everyone carefully counts all the CPU usage they're going to be doing across all their components (including libraries you use) to ensure they don't stall the system. They just won't have that capacity. And if you need some important task to always run when it must, you can also get that.
 
+虽然你不应该用 Erlang 去编写这些关乎性命的系统 - Erlang 只遵循了软实时系统的约束, 而非硬实时, 所以这些情景下不要用 Erlang. 但 Erlang 确实提供了抢占式调度, 以及进程优先级. 这意味着对于系统设计者来说你无需仔细确认每个组件(包括你用的库)所使用的 CPU 资源, 它们不会导致整个系统挂起. 同时假如你真的需要, 也可以让一些重要的任务要优先运行.
+
 This may not seem like a big or common requirement, and people still ship really successful projects only with cooperative scheduling of concurrent tasks, but it certainly is extremely valuable because it protects you against the mistakes of others, and also against your own mistakes. It also opens up the door to mechanisms like automated load-balancing, punishing or rewarding good and bad processes or giving higher priorities to those with a lot of work waiting for them. Those things can end up giving you systems that are fairly adaptive to production loads and unforeseen events.
+
+这些可能听起来不是什么很重要的需求, 有很多成功的项目构建在只有协同调度的并发任务之上, 但抢占式调度也有很大的价值, 它可以从别人乃至你自己的错误中保护整个系统. 它还可以帮助你构建类似自动负载均衡, 好坏进程的惩罚奖赏或是提高那些任务很多的进程的优先级等等. 这些功能可以让你的系统更加从容地面对生产环境中变幻莫测的负载或无法预见的问题.
 
 ![Network Aware](/static/zen_of_erlang/009.png)
 
 The last ingredient I want to discuss in getting decent fault tolerance is network awareness. In any system we develop that we need to stay up for long periods of time, having more than one computer to run it on quickly becomes a prerequisite. You don't want to be sitting there with your own golden machine locked behind titanium doors, unable to tolerate any disruption with effecting your users in major ways.
 
+有关构建高容错性系统我最后想说的一点是｢网络认知｣ (network awareness). 在我们想要构建的任何要保持长期在线的系统中, 多台机器构建的网络都可说已成为了前提条件. 哪怕你有一台性能超强的机器, 当它出现问题的时候也就会不可避免地影响到你的用户.
+
 So you eventually need two computers so one can survive a broken other, and maybe a third one if you want to deploy with broken computers part of your system.
+
+所以你最少也要两台机器, 这样一台有问题的时候另一台可以顶上. 假如说部署的时候就有坏掉的机器, 那你可能就要三台才能保证系统的正常运转.
 
 The plane on the slide is the F-82 twin mustang, an aircraft that was designed during the second world war to escort bombers over ranges most other fighters just couldn't cover. It had two cockpits so that pilots could take over and relay each other over time when tired; at some point they also fit it so one would pilot while the other would operate radars in an interceptor role. Modern aircrafts still do something similar; they have countless failovers, and often have crew members sleeping in transit during flight time to make sure there's always someone who's alert ready to pilot the plane.
 
+这一页上的飞机是一架 F-82 ｢双生野马｣, 这种二战时期设计出来的重型战斗机用于掩护长距离的轰炸机, 当时绝大多数其他战斗机都没法非这么长的距离. 它有两个驾驶舱, 因此飞行员们可以轮流休息; 或者可以一组操纵飞机, 另一组操作雷达, 变成类似拦截机的角色. 现代的飞机其实也有类似之处, 它们有数不胜数的故障转移机制, 也常常有可以换班的飞行员在舱内休息, 以便随时有清醒的人可以应对紧急情况.
+
 When it comes to programming languages or development environments, most of them are designed ignoring distribution altogether, even though people know that if you write a server stack, you need more than one server. Yet, if you're gonna use files, there's gonna be stuff in the standard library for that. The furthest most languages go is giving you a socket library or an HTTP client.
 
+尽管人们都知道写服务器的话怎么也要几台机器, 很多语言或平台依然忽略着分布式的功能. 不像文件操作, 大多数语言都有标准库之类的可以直接使用, 大多数语言最多就是提供套接字库或者 HTTP 客户端.
+
 Erlang acknowledges the reality of distribution and gives you an implementation for it, which is documented and transparent. This lets people set up fancy logic for failing over or taking over applications that crash to provide more fault tolerance, or even lets other languages pretend they are Erlang nodes to build polyglot systems.
+
+Erlang 不但认识到分布式的重要性, 还提供了一整套文档完善且透明的实现. 你可以在此之上控制如何故障转移, 或由另一个节点接管某个崩溃的应用等等从而实现更高的容错性. 甚至还可以让其他语言接入 Erlang 的分布式系统中, 构建一个多种语言混合的系统.
 
 ![Let it crash.](/static/zen_of_erlang/010.png)
 
