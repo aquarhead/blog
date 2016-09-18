@@ -64,7 +64,7 @@ I think this is what 'Let it crash' is about. If we can embrace failures, crashe
 
 So the question becomes to figure out how do we ensure that crashes are enablers rather than destructors. The basic game piece for this in Erlang is the process. Erlang's processes are fully isolated, and they share nothing. No process can go and reach into another one's memory, or impact the work it's doing by corrupting the data it operates on. This is good because it means that a process dying is essentially guaranteed to keep its issues to itself, and that provides very strong fault isolation into your system.
 
-那我们怎么让崩溃之类的｢弃恶从善｣呢? Erlang 提供了最基本的拼板: 进程 [^2]. Erlang 进程彼此完全独立, 不共享任何数据. 一个进程无法查看或是篡改其他进程的内存, 也就无法干扰其他进程正在进行的工作. 这样的好处是基本上保证了一个进程出问题时只会影响到自己, 同时这就为你的系统提供了很强的故障隔离性.
+那我们怎么让崩溃之类的｢弃恶从善｣呢? Erlang 提供了最基本的拼板: Erlang 进程 [^2]. Erlang 进程彼此完全独立, 不共享任何数据. 一个进程无法查看或是篡改其他进程的内存, 也就无法干扰其他进程正在进行的工作. 这样的好处是基本上保证了一个进程出问题时只会影响到自己, 同时这就为你的系统提供了很强的故障隔离性.
 
 Erlang's processes are also extremely lightweight, so that you can have thousands and thousands of them without problem. The idea is to use as many processes as you need, rather than as many as you can. The common comparison there is to say that if you had an object-oriented language where you could only have 32 objects running at a any given time, you'd rapidly find it overly constraining and quite ridiculous to build programs in that language. Having many small processes does ensure a higher granularity in how thing break, and in a world where we want to harness the power of these failures, this is good!
 
@@ -266,7 +266,7 @@ With these terms defined, let's look at what should be their frequencies.
 
 Here I'm classifying bohrbugs as repeatable, and heisenbugs as transient.
 
-这里我把 Bohrbug 标记成可重复的 (repeatable), Heisenbug 则是暂时的 (transient).
+这里我把 Bohrbug 标记成可重复的 (repeatable), Heisenbug 则是临时的 (transient).
 
 If you have bohrbugs in your system's core features, they should usually be very easy to find before reaching production. By virtue of being repeatable, and often on a critical path, you should encounter them sooner or later, and fix them before shipping.
 
@@ -282,37 +282,61 @@ In any case, they are somewhat easy to find, we just won't spend the time or res
 
 Heisenbugs are pretty much impossible to find in development. Fancy techniques like formal proofs, model checking, exhaustive testing or property-based testing may increase the likelihood of uncovering some or all of them (depending on the means used), but frankly, few of us use any of these unless the task at hand is extremely critical. A once in a billion issue requires quite a lot of tests and validation to uncover, and chances are that if you've seen it, you won't be able to generate it again just by luck.
 
-Heisenbug 基本上在开发环境中完全不会出现. 类似[公式证明](https://www.wikiwand.com/en/Formal_proof), [模型检查](https://www.wikiwand.com/en/Model_checking), 极其详尽的测试或者[属性测试](https://www.wikiwand.com/en/QuickCheck)这样的高级技术或许能提高发现这类问题的可能性, 不过坦白地讲, 我们通常都不会用刚刚提过的任何一种方法, 除非是写什么特别特别重要的东西. 一个亿万分之一概率的问题需要写大量的测试和验证才能发现, 而且很多情况下就算你偶尔看见了一次, 再跑一次也不一定会重现同样的问题.
+Heisenbug 基本上在开发环境中完全不会出现. 类似[公式证明](https://www.wikiwand.com/en/Formal_proof), [模型检查](https://www.wikiwand.com/en/Model_checking), 极其详尽的测试或者[属性测试](https://www.wikiwand.com/en/QuickCheck)这样的高级技术或许能提高发现这类问题的概率, 不过坦白地讲, 我们通常都不会用刚刚提过的任何一种方法, 除非是写什么特别特别重要的东西. 一个亿万分之一概率的问题需要写大量的测试和验证才能发现, 而且很多情况下就算你偶尔看见了一次, 再跑一次也不一定会重现同样的问题.
 
 ![Bugs that Happen in production](/static/zen_of_erlang/015.png)
 
 The next connection I want to make is regarding the frequency each of these types of bugs have in production (in my experience). There's no obvious proof that there is any connection between the use of finding bugs and their incidence in production systems, but my gut feeling would tell me that such a connection does exist.
 
+接下来我想讨论(根据我的经验)这两种错误在生产环境中发生的频率. 虽然没办法证明, 直觉告诉我发现错误的难易和它们在生产环境中发生的频率还是有某种联系的.
+
 First of all, easy repeatable bugs in core features should just not make it to production. If they do, you have essentially shipped a broken product and no amount of restarting or support will help your users. Those require modifying the code, and may be the result of some deeply entrenched issues within the organisation that produced them.
+
+首先, 主要特性中反复出现的错误根本不应该出现在生产环境中. 如果有的话你就等于发布了一个有本质缺陷的产品, 不论怎么重启都没用的. 因为这类错误就是代码质量的问题, 也或许是公司里更深层的什么问题导致的.
 
 Repeatable bugs in side-features will pretty often make it to production. I do think this is a result of not taking the time to test them properly, but there's also a strong possibility that secondary features often get left behind when it comes to partial refactorings, or that the people behind their design do not fully consider whether the feature will coherently fit with the rest of the system.
 
+次要特性中我们还是常常会看到那些重复出现的错误. 我也认为这是没有花足够的时间充分测试所导致的, 但也有很大可能是这些次要特性在重构的时候没人关注, 或者设计它们的人并没有完整地考虑过在各种情况下它们如何与系统的系统部分合作.
+
 On the other hand, transient bugs will show up all the damn time. Jim Gray, who coined these terms, reported that on 132 bugs noted at a given set of customer sites, only one was a Bohrbug. 131/132 of errors encountered in production tended to be heisenbugs. They're hard to catch, and if they're truly statistical bugs that may show once in a million times, it just takes some load on your system to trigger them all the time; a once in a billion bug will show up every 3 hours in a system doing 100,000 requests a second, and a once in a million bug could similarly show up once every 10 seconds on such a system, but their occurrence would still be rare in tests.
 
+另一方面, 临时性的问题什么时候都有可能发生. 提出这两个概念的格雷先生曾表示在某个客户遇到的132个错误中, 只有一个是 Bohrbug. 在这个生产环境里, 总共132个错误里131个都是 Heisenbug. 你很难捕捉这类错误, 假如说统计学上它们发生的概率是几百万分之一, 那么当你的负载达到一定的量级就会时常发生这类问题; 一个十亿分之一概率的错误, 每三个小时就会在一个每秒处理十万次请求的系统中发生一次, 而一个百万分之一概率的错误每10秒就会在这样的系统中发生一次, 然而这样的频率在(绝对数量没那么多的)测试中可以说太稀有了.
+
 That's a lot of bugs, and a lot of failures if they are not handled properly.
+
+听起来这可是很多很多的错误, 并且如果没有正确处理的话每一个都有可能导致系统故障.
 
 ![Bugs Handled by Restarts](/static/zen_of_erlang/016.png)
 
 So really, how efficient is restarting as a strategy?
 
+那么回到本来的问题, 重启进程这种策略能不能解决这些问题呢?
+
 Well for repeatable bugs on core features, restarting is useless. For repeatable bugs in less frequently used code paths, it depends; if the feature is a thing very important to a very small amount of users, restarting won't do much. If it's a side-feature used by everyone, but to a degree they don't care much about, then restarting or ignoring the failure altogether can work well. For example, if the facebook 'poke' feature were to be broken (would it still exist), not too many users would notice or see their experience ruined by its failure.
+
+首先对于主要特性中的重复性错误, 重启应该是没什么用的. 对于次要特性中的这类问题, 可能要取决于具体情况; 如果这个功能对于一小部分用户来说很重要, 重启进程同样是没什么用的. 如果大多数人都不在乎这个功能好不好用, 那么重启或者忽略这个错误就还好. 比方说, 假如 Facebook 的｢戳｣功能失效了(假如现在还有这么个功能的话), 可能大多数人不会觉得他们的体验受到了什么影响.
 
 For transient bugs though, restarting is extremely effective, and they tend to be the majority of bugs you'll meet live. Because they are hard to reproduce, that their showing up is often dependent on very specific circumstances or interleavings of bits of state in the system, and that their appearance tends to be in a very small fraction of all operations, restarting tends to make them disappear altogether.
 
+而对于临时性的错误来说, 重启是十分有效的, 并且这类错误才是你在生产环境中主要会遇到的. 这类错误之所以难以重现, 往往是因为它们只有在非常特定的条件下才会触发, 或者是系统处于什么中间状态时. 同时它们只会在很少的一部分操作里才会发生, 重启同时可以彻底｢解决｣(或者说隐藏)这一类问题.
+
 Rolling back to a known stable state and trying again is unlikely to hit the same weird context that causes them. And just like that, what could have been a catastrophe has become little more than a hiccup for the system, something users quickly learn to live with.
 
+从一个已知的稳定的状态重新开始, 很可能这个操作就不会遇到发生了问题的那种上下文. 重启可以让这种本来可能导致系统级灾难的错误变成一个小问题, 用户也不会注意到什么不同.
+
 You can then make use of logging, tracing, or a variety of introspection tools (which all come out of the box in Erlang) to later find, understand, and fix the issues so they stop happening. Or you could just decide to tolerate them were the effort required to fix the issues too large.
+
+在这之后, 你可以通过使用日志, 追踪, 或者其他 Erlang 提供的分析工具来查找, 理解最后修复这一类问题. 假如这个错误不值得花那么多时间去修复, 你也完全可以选择就让它们出错时被监督者重启.
 
 ![notorious bsd](/static/zen_of_erlang/017.png)
 
 This question was asked to me on a forum where I was discussing programming stuff and discussing the Erlang model. I copied it verbatim because it's a great example of a question a lot of people ask when they hear about restarting and Erlang's features.
 
+这个问题 [^7] 是我在某个论坛上讨论编程相关的话题和 Erlang 模型时有人问我的. 我直接把原文贴过来, 因为很多人在听了 Erlang 的特性和重启之后都会问类似的问题.
+
 I want to address it specifically by giving a realistic example of how a system could be designed in Erlang, which will highlight its peculiarities.
+
+我想通过一个用 Erlang 设计的系统的真实例子来回答这个问题, 这可以突出一些 Erlang 独特的地方.
 
 ![supervision tree demo](/static/zen_of_erlang/018.png)
 
@@ -416,8 +440,9 @@ That sounds simple, but it's surprisingly good; if you feel that your well-under
 That’s the Zen of Erlang: building interactions first, making sure the worst that can happen is still okay. Then there will be few faults or failures in your system to make you nervous (and when it happens, you can introspect everything at run time!) You can sit back and relax.
 
 [^1]: 实在是不了解这些术语是怎么翻译的...
-[^2]: Erlang 的进程不同于一般概念中的｢操作系统进程｣, 下文若非明确提及, ｢进程｣皆特指 Erlang 进程
+[^2]: Erlang 的进程不同于一般概念中由操作系统提供的｢进程｣, 下文若非明确提及, ｢进程｣皆特指 Erlang 进程
 [^3]: Pattern Matching 是 Erlang 很｢独特｣同时也非常强大的一个特性, 其直接导致了 Erlang 中函数的写法有别于很多更为常见的语言. 若想详细了解建议阅读 Erlang 或 Elixir 相关的书籍或在线教程等
 [^4]: 监督者是 OTP 的一个核心组件, OTP 是 Erlang/OTP 这个常常写在一起的名字里面表示一个通用开发平台的那部分. (虽然全称是 Open Telecom Platform, 但现在一般不在意这层意思, 只称为 OTP)
 [^5]: Jim Gray, [wiki](https://www.wikiwand.com/en/Jim_Gray_(computer_scientist)), Fred 还建议多阅读他的论文, 基本上都写的很好
 [^6]: 对量子力学有所了解的读者看到这两个名字应该会会心一笑吧 :)
+[^7]: ｢我喜欢静态类型的语言. 遇到没有处理的异常时我会直接重启整个 daemon. Erlang 有什么更好的方案来提供高容错性么?｣
