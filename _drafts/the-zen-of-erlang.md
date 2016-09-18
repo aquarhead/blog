@@ -358,33 +358,55 @@ OCR 进程可能只是一段监控代码, 此时具体的工作可以是用 C �
 
 Another thing I should point out is that each supervisor has a configurable tolerance to failure; the district supervisor might be very tolerant and deal with 10 failures a minute, whereas the storage layer could be fairly intolerant to failure if expected to be correct, and shut down permanently after 3 crashes an hour if we wanted it to.
 
-正如前面提过的, 每个监督者可以配置不同的容忍度; 分区的监督者可以很宽松, 允许一分钟内出现10次崩溃, 而存储层为了保证正确性就会更严格, 比如一个小时内如果有3次崩溃我们就要关闭整个程序先除错了.
+正如前面提过的, 每个监督者可以配置不同的容忍度; 分区的监督者可以很宽松, 允许一分钟内出现10次崩溃, 而存储层为了保证正确性就会更严格, 比如一个小时内如果有3次崩溃我们就要关闭整个程序去除错了.
 
 In this program, critical features are closer to the root of the tree, unmoving and solid. They are unimpacted by their siblings' demise, but their own failure impacts everyone else. The leaves do all the work and can be lost fairly well — once they have absorbed the data and operated their photosynthesis on it, it is allowed to go towards the core.
 
+像这个程序里, 关键的部分靠近树根, 不会变动. 他们不会受其他进程影响, 但如果他们自己出问题了会影响所有人(子进程等). 叶子上的进程负责实际的工作, 有些就算失败或崩溃了也没关系, 只要他们｢吸收｣了数据, 完成了｢光合作用｣就好.
+
 So by defining all of that, we can isolate risky code in a worker with a high tolerance or a process that is being monitored, and move data to stabler process as information matures into the system. If the OCR code in C is dangerous, it can fail and safely be restarted. When it works, it transmits its information to the Erlang OCR process. That process can do validation, maybe crash on its own, maybe not. If the information is solid, it moves it to the Count process, whose job is to maintain very simple state, and eventually flush that state to the database via the storage subtree, safely independent.
+
+通过定义这些层级关系等等, 我们就可以将较为危险的代码放入容忍度较高的工作进程中, 把处理得出的数据存放到更加稳定的进程中. 如果用 C 写的 OCR 代码不够稳定, 我们可以允许这些进程失败并重启它们. 当它们成功的时候会将数据传给 Erlang 系统中的 OCR 进程. 这个进程可能会做一些验证, 也可能在这一部分崩溃. 不过只要数据没问题, 它就会将其传给计数进程, 这个进程只要维护一个很简单的状态, 并在最后(通过存储层的进程)写入到数据库中即可, 这样数据就安全存放在系统之外了.
 
 If the OCR process dies, it gets restarted. If it dies too often, it takes its own supervisor down, and that bit of the subtree is restarted too — without affecting the rest of the system. If that fixes things, great. If not, the process is repeated upwards until it works, or until the whole system is taken down as something is clearly wrong and we can't cope with it through restarts.
 
+如果 OCR 进程挂掉了, 它会被重启. 如果它挂的太频繁, 它的监督者会挂掉, 然后这一部分子树也一样会被重启 - 注意这些都不会影响到系统的其他部分. 如果重启后没问题了, 那万事大吉. 如果还不行, 进程就会一层一层地向上重复崩溃重启的步骤, 直到系统恢复正常, 当然如果真的遇到无法解决的问题, 最后整个系统也可能都关掉了.
+
 There's enormous value in structuring the system this way because error handling is baked into its structure. This means I can stop writing outrageously defensive code in the edge nodes — if something goes wrong, let someone else (or the program's structure) dictate how to react. If I know how to handle an error, fine, I can do that for that specific error. Otherwise, just let it crash!
 
+这种架构系统的方式有着巨大的价值, 因为我们是通过**结构**在进行错误处理. 这意味着在叶子节点上我们无需再去写那些粗暴的｢防御式｣代码, 出了问题时让其他的进程(或是程序的结构)来决定采取什么措施. 如果我们确定地知道某些特定错误需要如何处理, 我们依然可以去编写针对这些情况的代码. 但除此之外, **让他崩溃就好了!**
+
 This tends to transform your code. Slowly you notice that it no longer contains these tons of if/else or switches or try/catch expressions. Instead, it contains legible code explaining what the code should do when everything goes right. It stops containing many forms of second guessing, and your software becomes much more readable.
+
+这也会影响你所写的代码. 慢慢地你会发现代码里不再有成堆的 `if/else` 或是 `try/catch` 之类的语句. 相反, 你的代码只会关注当一切照常的时候怎样完成它的工作. 你不再写各式各样的代码试图处理你无法预测的错误, 代码的可读性也会显著提高.
 
 ![supervision subtrees](/static/zen_of_erlang/019.png)
 
 When taking a step back and looking at our program structure, we may in fact find that each of the subtrees encircled in yellow seem to be mostly independent from each other in terms of what they do; their dependency is mostly logical: the reporting system needs a storage layer to query, for example.
 
+再退开一步观察我们的程序结构, 你或许会发现黄色圈出来的这几个子树在功能上基本是彼此独立的; 他们的依赖关系只是逻辑上的, 比方说报告系统要从某个存储层里查询数据.
+
 It would also be great if I could, for example, swap my storage implementation or use it independently in other systems. It could be neat, too, to isolate the live reports system into a different node or to start providing alternative means (such as SMS for example).
 
+这样组织之后还有其他的好处, 比如说换另一个存储层的实现或者将这个存储层独立地用于其他的系统. 假如我们能把实时报告系统放到另一个节点上或者是提供更多通知方法比如短信啊之类的就更棒了.
+
 What we now need is to find a way to break up these subtrees and turn them into logical units that we can compose, reuse together, and that we can otherwise configure, restart, or develop independently.
+
+我们需要的某种可以将这些子树拆分更若干个逻辑单元, 可以独立开发, 配置, 重启, 同时又可以任意组合, 重用的方法.
 
 ![OTP apps](/static/zen_of_erlang/020.png)
 
 OTP applications are what Erlang uses as a solution here. OTP applications are pretty much the code to construct such a subtree, along with some metadata. This metadata contains basic stuff like version numbers and descriptions of what the app does, but also ways to specify dependencies between applications. This is useful because it lets me keep my storage app independent from the rest of the system, but still encode the tally app's need for it to be there when it runs. I can keep all the information I had encoded in my system, but now it is built out of independent blocks that are easier to reason about.
 
+Erlang 为此提供的方案是 OTP 应用 (Application). OTP 应用基本上就包括构建这样的子树的一点代码以及一些元数据. 元数据中包括了一些基本信息, 比如版本号, 一段关于这个应用的描述, 还包括了这个应用和其他应用的依赖关系等等. 这可以保证虽然存储应用是与系统的其他部分独立的, 但其他应用依然可以将其编入自己的依赖列表中, 保证运行时这些应用都可用. 构建整个系统的方法其实差不多, 不过现在每一部分更加独立, 从而可以更好地管理和分析.
+
 In fact, OTP applications are what people consider to be libraries in Erlang. If your code base isn't an OTP application, it isn't reusable in other systems. [Sidenote: there are ways to specify OTP libraries that do not actually contain subtrees, just modules to be reused by other libraries]
 
+事实上人们常常把 OTP 应用看作是 Erlang 世界中的库. 如果你的代码没有组织成一个 OTP 应用, 那就无法在其他系统中重用. [^8]
+
 With all of this done, our Erlang system now has all of the following properties defined:
+
+有了这些, 我们的 Erlang 可以定义下面的这些属性:
 
 - what is critical or not to the survival of the system
 - what is allowed to fail or not, and at which frequency it can do so before it is no longer sustainable
@@ -393,21 +415,40 @@ With all of this done, our Erlang system now has all of the following properties
 - how software is upgraded (because it can be upgraded live, based on the supervision structure)
 - how components interdepend on each other
 
+- 对于整个系统来说哪些是绝对重要的, 哪些是不太重要的
+- 哪些是允许出错的, 又允许以何种频率出错
+- 程序的启动有何需求, 又应当以何种顺序
+- 程序应如何应对故障, 即一部分出错时怎样的状态是合法的, 以及如何回滚到一个已知的稳定状态
+- 程序应如何升级 (通过监督结构我们可以实现在线升级)
+- 各个组件之间如何相互依赖
+
 This is all extremely valuable. What's more valuable is forcing every developer to think in such terms from early on. You have less defensive code, and when bad things happen, the system keeps running. All you have to do is go look at the logs or introspect the live system state and take your time to fix things, if you feel it's worth the time.
+
+所有这些都很有价值. 比这些更有价值的是迫使每个开发者尽早地以这种方式思考(系统构建的方式). 你减少了｢防御式｣的代码, 而系统出错时依然可以继续运行. 如果你觉得某个错误值得花时间修复, 你可以查看日志或是直接观察生产环境上系统的状态, 而且没有时间上的压力.
 
 ![sleep at night](/static/zen_of_erlang/021.png)
 
 With all of this done, I should be able to sleep at night, right? Hopefully yes. What I included here is a small pixelated diagram from a new software deploy we ran at Heroku a couple of years ago.
 
+如果我做到了这些, 我该可以在睡个安稳觉了吧? 说不定真的可以哟. 这张图来自若干年前我们在 Heroku 部署的一个新程序.
+
 The leftmost side of the diagram is around September. By that time, our new proxying layer (vegur) had been in production for maybe 3 months, and we had ironed out most of the kinks in it. Users had no problem, the transition was going smoothly and new features were being used.
+
+这张图最左边是大概九月份的时候. 那个时候我们新写的代理层 (vegur) 已经在生产环境使用了大概3个月了, 我们也基本上修复了所有的已知问题. 用户也没再反映什么问题, 迁移过程也很平稳, 新的特性开始投入使用.
 
 At some point, a team member got a very expensive credit card bill for the logging service we were using to aggregate exceptions. That's when we took a look at it and saw the horror on the leftmost side of the diagram: we were generating between 500,000 to 1,200,000 exceptions a day! Holy cow, that was a lot. But was it? If the issue was a heisenbug, and our system was seeing, say 100,000 requests a second, what were the odds of it happening? Something between 1/17000 and 1/7000. Somewhat very frequent, but because it had no impact on service, we didn't notice it until the bandwidth and storage bill came through.
 
+后来有一天, 一个同事从我们使用的日志服务那儿收到了一笔高额账单. 那时候我们才关注到这张图, 发现那时候每天都有50万到120万左右的异常发生! 天啊, 竟然有那么多. 但真的有很多么? 如果这是个 Heisenbug, 然后我们的系统比如说每秒会处理10万左右的请求, 那么它发生的概率是多少? 也就是 1/17000 到 1/7000 左右. 也可以说蛮频繁的, 但因为它对主要的服务没什么影响, 我们直到看到带宽和存储相关的账单时才注意到这个问题.
+
 It took us a short while to figure out the error, and we fixed it. You can see that there is still a low rate of exceptions after that, maybe a few dozen thousands a day. They're all things we know of, but are impact-free. Two years later and we haven't bothered to fix it because the system works fine despite that.
+
+修复这个问题花了点时间. 你可以看到那之后其实每天还会发生几千个异常左右. 这是已知问题, 而且不会影响到我们的服务. 两年过去了我们也没有耗费精力去完全修复这个问题, 因为整个系统依然运转良好.
 
 ![expect failure](/static/zen_of_erlang/022.png)
 
 At the same time, you can't always just sleep at night. Failures can be out of your control despite your best design efforts.
+
+可惜的是, 你不能真的什么都不管. 有时候故障是源自你无法控制的东西, 哪怕你绞尽脑汁做了最好的设计也会受到影响.
 
 A couple of years ago I was on a flight to Vancouver starting on its descent when the pilot used the intercom to tell us something a bit like this: "this is your captain speaking, we will be landing shortly. Do not be alarmed as we will stay on the tarmac for a few minutes while the fire department looks over the plane. We have lost some hydraulic component and they want to ensure there is no risk of fire. There are two backup systems for the broken one, and we should be fine."
 
@@ -456,3 +497,4 @@ That’s the Zen of Erlang: building interactions first, making sure the worst t
 [^5]: Jim Gray, [wiki](https://www.wikiwand.com/en/Jim_Gray_(computer_scientist)), Fred 还建议多阅读他的论文, 基本上都写的很好
 [^6]: 对量子力学有所了解的读者看到这两个名字应该会会心一笑吧 :)
 [^7]: ｢我喜欢静态类型的语言. 遇到没有处理的异常时我会直接重启整个 daemon. Erlang 有什么更好的方案来提供高容错性么?｣
+[^8]: OTP 应用完全可以不包含需要运行起来的监督树, 而只包含一些模块代码
