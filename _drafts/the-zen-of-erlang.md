@@ -5,13 +5,13 @@ cn: true
 ---
 
 > 本文是在原作者 Fred Hebert 先生的许可下, 对 [_The Zen of Erlang_](http://ferd.ca/the-zen-of-erlang.html) 的简体中文翻译.
-> 
+>
 > 我从原文中获益良多, 也曾受其启发在 [Elixir Shanghai](http://www.meetup.com/Elixir-Shanghai/) 的[第二次聚会](http://www.meetup.com/Elixir-Shanghai/events/232775992/)上分享了一个题为 [_Defensive Programming vs. Let It Crash_ 的演讲](https://speakerdeck.com/aquarhead/defensive-programming-vs-let-it-crash), 从另一个角度切入分享了我的一些感悟.
-> 
-> 虽说本文对所有想了解 Erlang 的人都十分值得一读, 我个人觉得对那些接触了 Erlang 或 Elixir 却觉得没有以 Erlang/OTP 的思路在架构程序的人们或许更有用.
-> 
+>
+> 虽说本文对所有想了解 Erlang 的人都十分值得一读, 我个人认为对那些接触了 Erlang 或 Elixir 却觉得没有以 Erlang/OTP 的思路在架构程序的人们或许更有用.
+>
 > 文中原作者的一些比喻也许有些冗长 - 我的翻译也深受文字功底所限, 很是拙劣生硬, 所以那些部分随便看看就好不必较真 - 但有关 Erlang/OTP 的部分都很有仔细研读的价值.
-> 
+>
 > 衷心希望这篇译文能对中文世界的｢编程者｣们有所帮助.
 
 原文发表于 2016年02月08日
@@ -128,7 +128,7 @@ For this slide, I picked a picture of mountain climbers roped together. Now if m
 
 Erlang instead lets you specify that some processes are special and can be flagged with a `trap_exit` option. They can then take the exit signals sent over links and transform them into messages. This lets them recover faults and possibly boot a new process to do the work of the former one. Unlike mountain climbers, a special process of that kind cannot prevent a peer from crashing; that is the responsibility of that peer by using `try ... catch` expressions, for example. A process that traps exits still has no way to go play in another one's memory and save it, but it can avoid dying of it.
 
-实际上 Erlang 可以让你指定一些特殊的进程, 通过一个叫 `trap_exit` 的选项. 这些特殊进程可以捕获链接所导致的退出信号, 并把它们转换为消息. 从而它们可以修复一些故障, 比如说启动新的进程来继续挂掉的进程的工作. 不像真正的登山者那样, 这样的特殊进程并不能阻止与其链接的进程崩溃 - 要阻止崩溃你可能需要写类似 `try ... catch` 之类的语句, 当然是在可能会崩溃的那个进程里 - 一个激活了｢捕获退出信号｣的特殊进程不能进入其他进程的内存然后阻止其崩溃, 但却可以避免它｢灭亡｣. 
+实际上 Erlang 可以让你指定一些特殊的进程, 通过一个叫 `trap_exit` 的选项. 这些特殊进程可以捕获链接所导致的退出信号, 并把它们转换为消息. 从而它们可以修复一些故障, 比如说启动新的进程来继续挂掉的进程的工作. 不像真正的登山者那样, 这样的特殊进程并不能阻止与其链接的进程崩溃 - 要阻止崩溃你可能需要写类似 `try ... catch` 之类的语句, 当然是在可能会崩溃的那个进程里 - 一个激活了｢捕获退出信号｣的特殊进程不能进入其他进程的内存然后阻止其崩溃, 但却可以避免它｢灭亡｣.
 
 This turns out to be a critical feature to implement supervisors. If you haven't heard of them, we'll get to them soon enough.
 
@@ -138,15 +138,15 @@ This turns out to be a critical feature to implement supervisors. If you haven't
 
 Before going to supervisors, we still have a few ingredients to be able to successfully cook a system that leverages crashes to its own benefit. One of them is related to how processes are scheduled. For this one, the real world use case I want to refer to is Apollo 11's lunar landing.
 
-讲解监督者之前, 我们还需要再聊几样东西, 少了它们还是没法真正地｢化崩溃为神奇｣. 首先是进程如何调度, 我就拿阿波罗 11 的月球登陆来举例吧.
+讲解监督者之前, 我们还需要再聊几样东西, 少了它们还是没法真正地｢化崩溃为神奇｣. 首先是进程如何调度, 我就拿阿波罗11的月球登陆来举例吧.
 
 Apollo 11 is the mission that went to the moon in '69. In the slide right there, we see the lunar module with Buzz Aldrin and Neil Armstrong on board, with a photo taken by a person I assume to be Michael Collins, who stayed in the command module for the mission.
 
-阿波罗 11 是 69 年的一项登月任务. 图片中我们看到巴兹·奥尔德林和尼尔·阿姆斯特朗所乘坐的登月舱, 照片本身应该是留在指令舱的迈克尔·科林斯拍下的.
+阿波罗11是69年的一项登月任务. 图片中我们看到巴兹·奥尔德林和尼尔·阿姆斯特朗所乘坐的登月舱, 照片本身应该是留在指令舱的迈克尔·科林斯拍下的.
 
 While on their way to land on the moon, the lunar module was being guided by the Apollo PGNCS (Primary Guidance, Navigation and Control System). The guidance system had multiple tasks running on it, taking a carefully accounted for number of cycles. NASA had also specified that the processor was only to be used to 85% capacity, leaving 15% free.
 
-登月舱飞往月球时应该是由 Apollo PGNCS (Primary Guidance, Navigation and Control System) 所引导的. 导航系统要同时运行若干个任务, 每个任务都有严格分配的循环数. NASA 特别指定了处理器只能用 85% 的运算力, 剩余的 15% 以应对紧急情况.
+登月舱飞往月球时应该是由 Apollo PGNCS (Primary Guidance, Navigation and Control System) 所引导的. 导航系统要同时运行若干个任务, 每个任务都有严格分配的循环数. NASA 特别指定了处理器只能用85%的运算力, 剩余的15%以应对紧急情况.
 
 Now because the astronauts in this case wanted a decent backup plan in case they needed to abort, they had left a rendezvous radar up in case it would come in handy. That took up a decent chunk of the capacity the CPU had left. As Buzz Aldrin started entering commands, error messages would pop up about overflow and basically going out of capacity. If the system was going haywire on this, it possibly couldn't do its job and we could end up with two dead astronauts.
 
@@ -238,31 +238,51 @@ The last strategy happens whenever there is a dependency between processes accor
 
 Each supervisor additionally has configurable controls and tolerance levels. Some supervisors may tolerate only 1 failure per day before aborting while others may tolerate 150 per second.
 
-每个监督者还可以单独配置容错度. 比如一些重要层级上的监督者可能一天最多允许出现一次故障, 而其他的也许一秒种出现 150 次也没关系.
+每个监督者还可以单独配置容错度. 比如一些重要层级上的监督者可能一天最多允许出现一次故障, 而其他的也许一秒种出现150次也没关系.
 
 ![Heisenbugs](/static/zen_of_erlang/013.png)
 
 The comment that usually comes right after I mention supervisors is usually to the tune of "but if my configuration file is corrupted, restarting won't fix anything!"
 
+通常我解释了监督者之后第一个问题都类似这种: ｢可是如果我的配置文件被破坏了, 重启了也无济于事啊!｣
+
 That is entirely right. The reason restarting works is due to the nature of bugs encountered in production systems. To discuss this, I have to refer to the terms 'Bohrbug' and 'Heisenbug' coined by Jim Gray in 1985 (I do recommend you read as many Jim Gray papers as you can, they're pretty much all great!)
+
+这么说当然没错. 重启之所以能解决一部分问题关系到生产环境中所遇到的问题的本质. 为了解释这个问题, 我需要引用詹姆斯·格雷先生[^5]于1985年提出的一组概念: ｢玻尔 Bug｣ 和 ｢海森堡 Bug｣ (Bohrbug, Heisenbug, 下文不再翻译[^6])
 
 Basically, a bohrbug is a bug that is solid, observable, and easily repeatable. They tend to be fairly simple to reason about. Heisenbugs by contrast, have unreliable behaviour that manifests itself under certain conditions, and which may possibly be hidden by the simple act of trying to observe them. For example, concurrency bugs are notorious for disappearing when using a debugger that may force every operation in the system to be serialised.
 
+简单的说, Bohrbug 是那种固定会发生的, 比较明显的, 很容易重现的错误. 通常也很容易找出错误的原因. 相对的, Heisenbug 的行为很不规律, 往往只有在特殊条件下才会发生, 当你想观测它们的时候又消失不见了. 举例来说, 当你用调试器想要调试一个并发错误时往往它就不发生了, 因为调试器可能强制让整个系统序列化地运行.
+
 Heisenbugs are these nasty bugs that happen once in a thousand, million, billion, or trillion times. You know someone's been working on figuring one out for a while once you see them print out pages of code and go to town on them with a bunch of markers.
 
+Heisenbug 就是这种发生率只有千万甚至亿万分之一的错误. 假如你看到有人带着一叠打印出来的代码, 上面还有成堆的标记, 那十有八九这个人就是在调试一个 Heisenbug.
+
 With these terms defined, let's look at what should be their frequencies.
+
+现在你知道它们的含义了, 我们先来看看它们发生的频率.
 
 ![Ease of Finding Bugs in Production](/static/zen_of_erlang/014.png)
 
 Here I'm classifying bohrbugs as repeatable, and heisenbugs as transient.
 
+这里我把 Bohrbug 标记成可重复的 (repeatable), Heisenbug 则是暂时的 (transient).
+
 If you have bohrbugs in your system's core features, they should usually be very easy to find before reaching production. By virtue of being repeatable, and often on a critical path, you should encounter them sooner or later, and fix them before shipping.
+
+存在于系统主要特性中的 Bohrbug 往往在部署到生产环境之前就能很容易地发现. 因为它们很容易重现, 又在整个系统的关键部位上, 你早晚都会在发布之前遇到它们并一一修复.
 
 Those that happen in secondary, less used features, are far more of a hit and miss affair. Everyone admits that fixing all bugs in a piece of software is an uphill battle with diminishing returns; weeding out all the little imperfections takes proportionally more time as you go on. Usually, these secondary features will tend to gather less attention because either fewer customers will use them, or their impact on their satisfaction will be less important. Or maybe they're just scheduled later and slipping timelines end up deprioritising their work.
 
+那些在次要特性中的错误, 更多的是看碰不碰的上. 人们都承认要修复一个软件中所有的错误是不太可能的; 那些越是最后剩下的细微处的问题越是会消耗成倍增长的时间. 通常这些次要特性中的错误不会那么受人关注, 要么是用户数量很少, 要么是对整体体验的影响不大. 或者这些问题本来优先级就没那么高.
+
 In any case, they are somewhat easy to find, we just won't spend the time or resources doing so.
 
+不管怎么说, 这些错误都还是很简单就可以找到的, 只是我们没打算耗费很多时间或精力去修复它们.
+
 Heisenbugs are pretty much impossible to find in development. Fancy techniques like formal proofs, model checking, exhaustive testing or property-based testing may increase the likelihood of uncovering some or all of them (depending on the means used), but frankly, few of us use any of these unless the task at hand is extremely critical. A once in a billion issue requires quite a lot of tests and validation to uncover, and chances are that if you've seen it, you won't be able to generate it again just by luck.
+
+Heisenbug 基本上在开发环境中完全不会出现. 类似[公式证明](https://www.wikiwand.com/en/Formal_proof), [模型检查](https://www.wikiwand.com/en/Model_checking), 极其详尽的测试或者[属性测试](https://www.wikiwand.com/en/QuickCheck)这样的高级技术或许能提高发现这类问题的可能性, 不过坦白地讲, 我们通常都不会用刚刚提过的任何一种方法, 除非是写什么特别特别重要的东西. 一个亿万分之一概率的问题需要写大量的测试和验证才能发现, 而且很多情况下就算你偶尔看见了一次, 再跑一次也不一定会重现同样的问题.
 
 ![Bugs that Happen in production](/static/zen_of_erlang/015.png)
 
@@ -399,3 +419,5 @@ That’s the Zen of Erlang: building interactions first, making sure the worst t
 [^2]: Erlang 的进程不同于一般概念中的｢操作系统进程｣, 下文若非明确提及, ｢进程｣皆特指 Erlang 进程
 [^3]: Pattern Matching 是 Erlang 很｢独特｣同时也非常强大的一个特性, 其直接导致了 Erlang 中函数的写法有别于很多更为常见的语言. 若想详细了解建议阅读 Erlang 或 Elixir 相关的书籍或在线教程等
 [^4]: 监督者是 OTP 的一个核心组件, OTP 是 Erlang/OTP 这个常常写在一起的名字里面表示一个通用开发平台的那部分. (虽然全称是 Open Telecom Platform, 但现在一般不在意这层意思, 只称为 OTP)
+[^5]: Jim Gray, [wiki](https://www.wikiwand.com/en/Jim_Gray_(computer_scientist)), Fred 还建议多阅读他的论文, 基本上都写的很好
+[^6]: 对量子力学有所了解的读者看到这两个名字应该会会心一笑吧 :)
