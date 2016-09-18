@@ -218,17 +218,27 @@ That means that when you structure Erlang programs, everything you feel is fragi
 
 Supervisors can do that through usage of links and trapping exits. Their job begins with starting their children in order, depth-first, from left to right. Only once a child is fully started does it go back up a level and start the next one. Each child is automatically linked.
 
-监督者主要使用链接和退出信号捕获. 它们的工作首先是从左至右, 以深度优先逐次启动其子进程. 只有前一个子进程完全启动成功时它才会进一步启动下一个子进程. 每一个子进程都会自动链接到监督者.
+监督者通过使用链接和捕获退出信号工作. 它们的任务首先是从左至右, 以深度优先逐次启动其子进程. 只有前一个子进程完全启动成功时它才会进一步启动下一个子进程. 每一个子进程都会自动链接到监督者.
 
 Whenever a child dies, one of three strategies is chosen. The first one on the slide is 'one for one', enacted by only replacing the child process that died. This is a strategy to use whenever the children of that supervisor are independent from each other.
 
+当一个子进程挂掉时, 你有三种策略可以选择. 首先是 `one_for_one`, 具体方法是只重启挂掉的那一个进程. 这种策略适合子进程相互独立的监督者使用.
+
 The second strategy is 'one for all'. This one is to be used when the children depend on each other. When any of them dies, the supervisor then kills the other children before starting them all back. You would use this when losing a specific child would leave the other processes in an uncertain state. Let's imagine a conversation between three processes that ends with a vote. If one of the process dies during the vote, it is possible that we have not programmed any code to handle that. Replacing that dead process with a new one would now bring a new peer to a table that has no idea what is going on either!
+
+第二种策略是 `one_for_all`. 子进程互相都有依赖时就应当使用这种策略. 任何一个子进程挂掉时, 监督者首先杀掉其他的所有子进程, 然后再重新启动它们. 具体来说, 当一个子进程出问题会导致其他进程进入异常状态的时候就应当用这种策略. 比方说三个进程在讨论和投票. 我们可能没有编写处理投票时某个进程挂掉的代码. 这时如果仅仅重启挂掉的那个进程, 新的进程根本无法继续完成之前的任务.
 
 This inconsistent state is possibly dangerous to be in if we haven't really defined what goes on when a process wreaks havoc through a voting procedure. It is probably safer to just kill all processes, and start afresh from a known stable state. By doing so, we're limiting the scope of errors: it is better to crash early and suddenly than to slowly corrupt data on a long-term basis.
 
+假如我们没有定义投票时一个进程搞破坏的情况, 类似这样的不一致状态会是非常危险的. 这时杀掉所有相关的进程, 从已知的稳定状态开始也许更安全. 同时这也可以限制出错的范围: 尽可能早的崩溃要比让坏掉的进程慢慢破坏数据要好的多.
+
 The last strategy happens whenever there is a dependency between processes according to their booting order. Its name is 'rest for one' and if a child process dies, only those booted after it are killed. Processes are then restarted as expected.
 
+最后一种策略适用于进程间的依赖与启动顺序相关的情况. 名字是 `rest_for_one`, 当某个子进程挂掉时, 只有那些在这个进程之后启动的进程才会被杀掉重启.
+
 Each supervisor additionally has configurable controls and tolerance levels. Some supervisors may tolerate only 1 failure per day before aborting while others may tolerate 150 per second.
+
+每个监督者还可以单独配置容错度. 比如一些重要层级上的监督者可能一天最多允许出现一次故障, 而其他的也许一秒种出现 150 次也没关系.
 
 ![Heisenbugs](/static/zen_of_erlang/013.png)
 
