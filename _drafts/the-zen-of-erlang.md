@@ -336,19 +336,29 @@ This question was asked to me on a forum where I was discussing programming stuf
 
 I want to address it specifically by giving a realistic example of how a system could be designed in Erlang, which will highlight its peculiarities.
 
-我想通过一个用 Erlang 设计的系统的真实例子来回答这个问题, 这可以突出一些 Erlang 独特的地方.
+我想通过一个用 Erlang 设计的系统的实际例子来回答这个问题, 这可以突出一些 Erlang 独特的地方.
 
 ![supervision tree demo](/static/zen_of_erlang/018.png)
 
 With supervisors (rounded squares), we can start creating deep hierarchies of processes. Here we have a system for elections, with two trees: a tally tree and a live reports tree. The tally tree takes care of counting and storing results, and the live reports tree is about letting people connect to it to see the results.
 
+我们可以通过监督者(图中以圆角矩形表示)将进程组织成很深的层次关系. 这里我们看到一个选举系统, 大体上分成两个树: 一个管理选票, 另一个负责实时报告. 选票树负责计数和储存结果, 实时报告树可以让人们看到结果.
+
 By the order the children are defined, the live reports will not run until the tally tree is booted and functional. The district subtree (about counting results per district) won't run unless the storage layer is available. The storage's cache is only booted if the storage worker pool (which would connect to a database) is operational.
+
+按照子进程定义的顺序, 只有当选票树完成启动开始工作时实时报告的服务才会启动. 负责分区计数的地区子树要等存储层上线了才能启动. 存储层中的缓存也要等实际连接到数据库的存储工作池可以用了才会启动.
 
 The supervision strategies I mentioned earlier let us encode these requirements in the program structure, and they are still respected at run time, not just at boot time. For example, the tally supervisor may be using a one for one strategy, meaning that districts can individually fail without effecting each other's counts. By contrast, each district (Quebec and Ontario's supervisors) could be employing a rest for one strategy. This strategy could therefore ensure that the OCR process can always send its detected vote to the 'count' worker, and it can crash often without impacting it. On the other hand, if the count worker is unable to keep and store state, its demise interrupts the OCR procedure, ensuring nothing breaks.
 
+我前面讲过的监督策略让我们可以把这些需求直接转化为程序的结构, 无论启动时还是运行时系统都会遵循这些规则. 例如, 分区树的根监督者可能会用 `one_for_one` 的策略, 这样某一个分区出了问题不会影响到其他的分区子树. 而具体一个分区的监督者可以用 `rest_for_one` 的策略, 这样可以保证 OCR 进程在检测选票并发送给 `count` 进程时, 自身的崩溃不会影响到计数. 而一旦计数进程出现错误时, 监督者会同时关闭 OCR 进程, 保证没有进一步的崩溃.
+
 The OCR process itself here could be just monitoring code written in C, as a standalone agent, and be linked to it. This would further isolate the faults of that C code from the VM, for better isolation or parallelisation.
 
+OCR 进程可能只是一段监控代码, 此时具体的工作可以是用 C 写的另一个程序. 这可以进一步将 C 代码中的错误与 Erlang VM 分离.
+
 Another thing I should point out is that each supervisor has a configurable tolerance to failure; the district supervisor might be very tolerant and deal with 10 failures a minute, whereas the storage layer could be fairly intolerant to failure if expected to be correct, and shut down permanently after 3 crashes an hour if we wanted it to.
+
+正如前面提过的, 每个监督者可以配置不同的容忍度; 分区的监督者可以很宽松, 允许一分钟内出现10次崩溃, 而存储层为了保证正确性就会更严格, 比如一个小时内如果有3次崩溃我们就要关闭整个程序先除错了.
 
 In this program, critical features are closer to the root of the tree, unmoving and solid. They are unimpacted by their siblings' demise, but their own failure impacts everyone else. The leaves do all the work and can be lost fairly well — once they have absorbed the data and operated their photosynthesis on it, it is allowed to go towards the core.
 
