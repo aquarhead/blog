@@ -448,47 +448,77 @@ It took us a short while to figure out the error, and we fixed it. You can see t
 
 At the same time, you can't always just sleep at night. Failures can be out of your control despite your best design efforts.
 
-可惜的是, 你不能真的什么都不管. 有时候故障是源自你无法控制的东西, 哪怕你绞尽脑汁做了最好的设计也会受到影响.
+可惜的是, 你不能真的什么都不管. 有些故障源自你无法控制的东西, 即便是再好的设计也无法幸免.
 
 A couple of years ago I was on a flight to Vancouver starting on its descent when the pilot used the intercom to tell us something a bit like this: "this is your captain speaking, we will be landing shortly. Do not be alarmed as we will stay on the tarmac for a few minutes while the fire department looks over the plane. We have lost some hydraulic component and they want to ensure there is no risk of fire. There are two backup systems for the broken one, and we should be fine."
 
+若干年前我坐飞机去温哥华, 飞机开始下降时机长通过广播说了类似这样的内容: ｢我是机长, 我们即将着陆. 我们会在跑道上等待消防部门对飞机进行检查, 到时别惊慌. 有几个液压组件失灵了, 他们需要确保飞机没有起火的危险. 我们还有两套备用的系统, 不会有事的.｣
+
 And we were fine. In this case the airplane was amazingly well designed.
+
+我们确实没事. 这再次表明了飞机的设计多么完备.
 
 The image for this slide isn't that flight though, it's another one I was on two weeks ago, while the Eastern US were being burrowed under 24 inches of snow. The plane (flight United 734), which I'm sure was as reliable, landed on the runway. When it came time to break though, it made a loud noise, what I assume is the ABS equivalent of aircrafts, but it still kept going.
 
+这张照片并不是那次航班, 而是两周前我飞往积雪24寸的美国东部时所乘坐的飞机. 那架 - 我敢说一样可靠的 - 飞机开始在跑道上降落. 然而刹车时, 飞机发出了巨大的声响, 我猜是飞机上类似 ABS 的机制, 然而飞机没有及时停下来.
+
 We ran over the red lights at the end of the runway you see on the picture, and at the end of the tarmac, the plane skid off the runway, missed the onramp, and the front wheel ended up in the grass. Everyone was fine, but this is an example of why great engineering cannot save the day every time.
+
+我们冲出了标志跑道尽头的红灯, 飞机一路滑出跑道, 错过了斜坡弯道, 最后前轮停在了草地里. 大家都没事, 但这正说明了即使是杰出的工程设计也无法保证绝对的安全.
 
 ![danger zone](/static/zen_of_erlang/023.png)
 
 In fact, operations will always remain a huge factor in successful systems being deployed. This slide is heavily inspired (pretty much stolen in fact) from presentations by Richard Cook. If you don't know him, I urge you to go watch videos of his talks on youtube, they're pretty much all fantastic.
 
+事实上, 运维 [^9] 工作总是会极大地影响一个系统能否成功部署. 这张图来自理查德·库克先生的一次演讲. 假如你没听说过他, 我强烈建议你去 YouTube 上看看他的视频, 都很不错.
+
 Proper system architecture and development practices can still not replace, or can be broken by inadequate operations; the efficiency and usefulness of tools, playbooks, monitoring, automation, and so on, all tend to implicitly rely on the knowledge and respect of well-defined operating conditions (throughput, load, overload management, etc.) If defined at all, these operational limits let you know when things are about to go bad, and when they are good again.
+
+良好的系统架构和开发实践依然无法完全取代运维工作, 或者说不好的运维会直接毁掉一个设计和实现良好的系统; 你所依赖的开发, 监控, 自动化工具等等, 它们的实用性和效率全都会收到运维状况的影响 (带宽, 负载, 过载管理等等). 只有当你了解这些运维限制时才能了解什么时候系统要开始出问题了, 以及什么时候系统恢复正常了.
 
 The problem with these limits is that as operators get used to them, and get used to frequently breaking them without negative consequences, there is a risk of slowly pushing the envelope towards the edge of the danger zone, where nasty large-scale failures happen. Your reaction time and margin to adapt to higher loads erodes, and you eventually end in a position where things are constantly broken with no respite in sight.
 
+问题在于运维人员会慢慢习惯于这些, 当偶尔破坏了某些限制而没有影响的时候他们会渐渐开始忽略这些条件, 就好像一点点地逼近危险范围的临界点, 超过了这个临界点就会产生复杂的大规模系统故障. 在这个过程里你对于高危情况的嗅觉也被慢慢侵蚀, 最后你可能发现系统的各个部分持续的崩溃, 完全没有停下来的意思.
+
 So we have to be careful and aware of this kind of thing, and to the importance that people using and operating the software has on it. It is always harder to scale up a good team than it is to scale up a program. Plan for emergencies even if they don't happen; they will some day and you'll be happy you ran simulations and have recipes to follow to fix it all up.
+
+所以我们还是要注意这些事情, 并且那些使用和运维这些软件的人也必须有所警觉. 想要扩大一个好的团队要远远比给一个软件扩容要难. 在紧急情况出现之前就有所准备, 这样当问题真的出现时你就有现成的方案来修复整个系统.
 
 ![plane emergency measures](/static/zen_of_erlang/024.png)
 
 In the case of my flight, as I said, nobody was injured. Still, this is the circus that was deployed for it all: busses to escort passengers back to the terminal, since moving a stranded plane could be risky. Pick-up trucks to escort the busses safely from the runway to the terminal. Police cars, a whole lot of fire trucks, and that black car that I don't know what it does but I'm sure it's super useful.
 
+回到我刚刚的例子, 就像我说的并没有人受伤什么的. 但是机场仍然派出了所有这些装备来确保万无一失: 护送乘客返回航站楼的大巴. 护送大巴的车辆. 警车, 很多辆消防车, 还有我猜相当重要的那台黑色车辆.
+
 They deploy all of that despite everyone being fine, despite planes being super reliable. They do things right.
+
+尽管人和飞机都没事, 他们依然采取了这么多应对措施. 这个做法值得借鉴.
 
 ![other goodies](/static/zen_of_erlang/025.png)
 
 Here's another bunch of things you gain by using Erlang. I don't really have much to say about them, just that I do tend to have some kind of interest in you switching to use it, so here it is.
 
+这一页 [^10] 列出了 Erlang 带来的其他一些功能. 这次我不会具体解释它们, 如果你有兴趣使用 Erlang 的话可以去看看这些.
+
 The last point is worth commenting though. One of the risks that happen in languages that are very flexible in their approach in system design is that libraries you use may not want to do things the way you feel would be appropriate in your case, and you're left either not using the lib, or having to operate codebases with an incoherent design. This doesn't happen in Erlang as everyone uses the same proven approach to do things.
+
+关于最后一点我想再多说几句. 那些更为灵活的语言常常遇到的问题是你想使用的某个库和你做事的｢风格｣不符, 结果就是要么不用这个库, 要么就得忍受同一个代码库中存在着不一致的设计. Erlang 不存在这样的情况, 因为大家都遵循同样的准则 [^11] 去解决问题.
 
 ![how things interact](/static/zen_of_erlang/026.png)
 
 In a nutshell, the Zen of Erlang and 'let it crash' is really all about figuring out how components interact with each other, figuring out what is critical and what is not, what state can be saved, kept, recomputed, or lost. In all cases, you have to come up with a worst-case scenario and how to survive it. By using fail-fast mechanisms with isolation, links & monitors, and supervisors to give boundaries to all of these worst-case scenarios' scale and propagation, you make it a really well-understood regular failure case.
 
+总的来说, 所谓 Erlang 之禅和 "Let it crash" 实际上就是要理解各个组件之间究竟是如何互动的, 理解哪些是绝对重要和不那么重要的, 哪些状态可以被保存, 或是可以暂时保留, 或是可以重新计算, 又或者是可以扔掉的. 对于任何问题, 你都要想出最坏可能的情况, 然后思考如何摆脱困境. 通过使用由进程独立, 监控与链接以及监督者所构建的尽早崩溃的机制, 你可以控制那些最坏情况所影响的范围, 进而有可能将其转化为很普通的故障.
+
 That sounds simple, but it's surprisingly good; if you feel that your well-understood regular failure case is viable, then all your error handling can fall-through to that case. You no longer need to worry or write defensive code. You write what the code should do and let the program's structure dictate the rest. Let it crash.
+
+这一切听起来很简单, 却也非常实用; 如果你觉得管理自己已经完全理解的, 有规律可循的崩溃是一条可行之路, 那么你可以把所有的错误处理都归结于此. 你不再需要担心未曾处理的意外情况, 不再去写｢防御式｣的代码. 你只需写真正干活的那部分代码, 其他的情况交给程序的结构来处理. 不要惧怕崩溃, Let it crash.
 
 ![zen of erlang](/static/zen_of_erlang/027.png)
 
 That’s the Zen of Erlang: building interactions first, making sure the worst that can happen is still okay. Then there will be few faults or failures in your system to make you nervous (and when it happens, you can introspect everything at run time!) You can sit back and relax.
+
+这便是 Erlang 之禅: 首先构建整个系统如何交互, 保护好可能发生的最坏的情况. 系统中不再有大量需要你担心的错误(当真的出现问题时, 你也可以直接查看运行时的所有状态!) 如此你就能放轻松了.
 
 [^1]: 实在是不了解这些术语是怎么翻译的...
 [^2]: Erlang 的进程不同于一般概念中由操作系统提供的｢进程｣, 下文若非明确提及, ｢进程｣皆特指 Erlang 进程
@@ -498,3 +528,12 @@ That’s the Zen of Erlang: building interactions first, making sure the worst t
 [^6]: 对量子力学有所了解的读者看到这两个名字应该会会心一笑吧 :)
 [^7]: ｢我喜欢静态类型的语言. 遇到没有处理的异常时我会直接重启整个 daemon. Erlang 有什么更好的方案来提供高容错性么?｣
 [^8]: OTP 应用完全可以不包含需要运行起来的监督树, 而只包含一些模块代码
+[^9]: Operation, 我一直觉得翻译成｢运营｣或者是｢运维｣都怪怪的...
+[^10]: 
+    - 模式匹配
+    - 函数式编程
+    - 可选的类型检查
+    - 基于属性的测试工具
+    - 在线代码升级
+    - 遵循同一套准则的社区
+[^11]: OTP
