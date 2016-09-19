@@ -8,9 +8,9 @@ cn: true
 >
 > 我从原文中获益良多, 也曾受其启发在 [Elixir Shanghai](http://www.meetup.com/Elixir-Shanghai/) 的[第二次聚会](http://www.meetup.com/Elixir-Shanghai/events/232775992/)上分享了一个题为 [_Defensive Programming vs. Let It Crash_ 的演讲](https://speakerdeck.com/aquarhead/defensive-programming-vs-let-it-crash), 从另一个角度切入分享了我的一些感悟.
 >
-> 虽说本文对所有想了解 Erlang 的人都十分值得一读, 我个人认为对那些接触了 Erlang 或 Elixir 却觉得没有以 Erlang/OTP 的思路在架构程序的人们或许更有用.
+> 本文适合所有想了解 Erlang 的人. 而如果你已经接触了 Erlang 或 Elixir 一段时间, 却觉得没有以 Erlang/OTP 的思路在架构程序, 本文更是不容错过.
 >
-> 文中原作者的一些比喻也许有些冗长 - 我的翻译也深受文字功底所限, 很是拙劣生硬, 所以那些部分随便看看就好不必较真 - 但有关 Erlang/OTP 的部分都很有仔细研读的价值.
+> 原作者所使用的一些比喻也许有些冗长 - 我的翻译也深受文字功底所限, 很是拙劣生硬, 所以那些部分随便看看就好不必较真 - 但有关 Erlang/OTP 的部分都很有仔细研读的价值.
 >
 > 衷心希望这篇译文能对中文世界的｢编程者｣们有所帮助.
 
@@ -28,37 +28,37 @@ This is a loose transcript (or long paraphrasing?) of a presentation given at Co
 
 I assume most people here have never used Erlang, have possibly heard of it, maybe just the name. As such, this presentation will only cover the high level concepts of Erlang, in such a way that it may be useful to you in your work or side projects even if you never touch the language.
 
-那时我假定听讲的人大多从没用过 Erlang, 也许有人听说过这个语言, 又或者就知道有这么个名字. 所以这篇演讲只涵盖了 Erlang 一些高层次的概念, 不过其中的一些｢禅理｣或许也会对你们的日常工作或是自己的业余项目有所帮助, 哪怕你并不使用这门语言.
+那时我假定听讲的人大多从没用过 Erlang, 也许有人听说过这门语言, 又或者就知道有这么个名字. 所以这篇演讲只涵盖了 Erlang 一些高层次的概念, 不过其中的一些｢禅理｣或许也会对你们的日常工作或业余项目有所帮助, 哪怕你并不使用这门语言.
 
 ![Let It Crash](/static/zen_of_erlang/002.png)
 
 If you've ever looked at Erlang before, you've heard about that "Let it crash" motto. My first encounter with it had me wondering what the hell this was about. Erlang was supposed to be great for concurrency and fault tolerance, and here I was being told to let things crash, the entire opposite of what I actually want to happen in a system. The proposition is surprising, but the "Zen" of Erlang is related to it directly nonetheless.
 
-假如你曾经看过 Erlang, 你肯定听说过那句｢随他崩溃｣("Let it crash", 下文保持英文)的座右铭. 我第一次听到这句话的时候就在想这什么鬼. Erlang 不是强在高并发, 高容错性等等这些方面吗, 怎么能允许随便崩溃这种事, 这不是我最不希望看到的事故么. 的确, 这句话听起来很出人意料, 不过 Erlang 之｢禅｣还真和它脱不开干系.
+假如你曾经看过 Erlang, 你肯定听说过那句｢随他崩溃｣("Let it crash", 下文保持英文)的座右铭. 我第一次听到这句话的时候就在想这什么鬼. Erlang 不是强在高并发, 高容错性等等这些方面吗, 怎么能允许随便崩溃这种事呢, 这应该我最不希望看到的事故呀. 的确, 这句话听起来很出人意料, 不过 Erlang 之｢禅｣还真和它脱不开干系.
 
 ![Blow it Up](/static/zen_of_erlang/003.png)
 
 In some ways it would be as funny to use 'Let it Crash' for Erlang as it would be to use 'Blow it up' for rocket science. 'Blow it up' is probably the last thing you want in rocket science — the Challenger disaster is a stark reminder of that. Then again, if you look at it differently, rockets and their whole propulsion mechanism is about handling dangerous combustibles that can and will explode (and that's the risky bit), but doing it in such a controlled manner that they can be used to power space travel, or to send payloads in orbit.
 
-在某些方面 Erlang 的 "Let it crash" 听起来就和搞火箭科学的人说｢让它爆炸吧｣一样滑稽. 那本该是你最不希望发生的事 - 想想｢挑战者｣号曾发生的悲剧吧. 但话说回来, 若从另一个角度来看, 火箭本身以及所有这些推进原理正是关于如何控制那些极其危险的易燃易爆物质, 进而才能利用它们驱动太空旅行和运输.
+在某些方面 Erlang 的 "Let it crash" 听起来就和搞火箭科学的人说｢让它爆炸吧｣一样滑稽. 那本该是你最不希望发生的事 - 想想｢挑战者｣号曾发生的悲剧吧. 话又说回来, 若从另一个角度来看, 火箭及其依赖的推进原理正是关于如何控制那些极其危险的易燃易爆物质, 进而才能利用它们驱动太空旅行和运输.
 
 The point here is really about control; you can try and see rocket science as a way to properly harness explosions — or at least their force — to do what we want with them. Let it crash can therefore be seen under the same light: it's all about fault tolerance. The idea is not to have uncontrolled failures everywhere, it's to instead transform failures, exceptions, and crashes into tools we can use.
 
-其中的关键就在于控制; 你可以试着将火箭科学看作一门通过合理利用爆炸 - 起码有推力 - 来达成目的的学问. 所以 "Let it crash" 也是类似的: 这正是关乎容错率的信条. 我们真正的目标不是去随处制造那些不受控制的崩溃, 而是将故障, 异常还有崩溃等等这些变成我们可以利用的工具.
+其中的关键就在于控制; 你可以将火箭科学看作是一门通过合理利用爆炸 - 起码有推力 - 来达成目的的学问. "Let it crash" 也是同样的道理: 这正是关乎**容错**的信条. 我们真正的目标不是去随处制造那些不受控制的崩溃, 而是将故障, 异常还有崩溃等等这些变成我们可以利用的工具.
 
 ![Fight Fire with Fire](/static/zen_of_erlang/004.png)
 
 Back-burning and controlled burns are a real world example of fighting fire with fire. In Saguenay–Lac-Saint-Jean, the region I come from, blueberry fields are routinely burnt down in a controlled manner to help encourage and renew their growth. To prevent forest fires, it is fairly frequent to see unhealthy parts of a forest cleaned up with fire, so that it can be done under proper supervision and control. The main objective there is to remove combustible material in such a way an actual wildfire cannot propagate further.
 
-向后引燃法和受控引燃法 [^1] 是现实世界中以火制火的实例. 在我的家乡, 人们会定期燃烧蓝莓田, 用一种可控的方式来促进其生长. 为了预防森林大火, 树林中不健康的部分也会时常被人们主动烧掉, 当然也是在专门的监管和控制之下进行的. 这样就算大火发生了也会因为缺少可燃物而无法扩散太远.
+向后引燃法和受控引燃法 [^1] 是现实世界中以火制火的实例. 在我的家乡, 人们会定期燃烧蓝莓田, 用一种可控的方式来促进其生长. 为了预防森林大火, 树林中不健康的部分也会时常被人们主动烧掉, 当然也是在专门的监管和控制之下进行的. 这样就算发生了大火也会因为缺少可燃物而无法扩散太远.
 
 In all of these situations, the destructive power of fire going through crops or forests is being used to ensure the health of the crops, or to prevent a much larger, uncontrolled destruction of forested areas.
 
-在上面所有这些情况里, 火焰那本来极具破坏性的能量却可以用于保障作物的健康, 或是预防规模更大, 亦无法控制的森林大火.
+在上面所有这些情况里, 火焰那本来极具破坏性的能量却可以用于保障作物的健康, 或是预防规模更大, 亦无法控制的森林灾害.
 
 I think this is what 'Let it crash' is about. If we can embrace failures, crashes and exceptions and do so in a very well-controlled manner, they stop being this scary event to be avoided and instead become a powerful building block to assemble large reliable systems.
 
-我想这差不多就是 "Let it crash" 的含义. 如果我们能以一种更有掌控力的姿态来面对故障, 异常或是崩溃, 它们便不再是什么让人害怕的事件. 我们便无需竭力避免其发生, 反而可以以其为基石, 构建更大并且更稳定的系统.
+我想这差不多就是 "Let it crash" 的含义. 如果我们能以一种更有掌控力的姿态来面对故障, 异常或是崩溃, 它们便不再是什么让人害怕的事件. 我们便无需竭力避免其发生, 而是以其为基石, 构建更大并且更稳定的系统.
 
 ![Processes / Bees](/static/zen_of_erlang/005.png)
 
@@ -68,7 +68,7 @@ So the question becomes to figure out how do we ensure that crashes are enablers
 
 Erlang's processes are also extremely lightweight, so that you can have thousands and thousands of them without problem. The idea is to use as many processes as you need, rather than as many as you can. The common comparison there is to say that if you had an object-oriented language where you could only have 32 objects running at a any given time, you'd rapidly find it overly constraining and quite ridiculous to build programs in that language. Having many small processes does ensure a higher granularity in how thing break, and in a world where we want to harness the power of these failures, this is good!
 
-Erlang 进程也非常轻量, 启动成千上万个稀松平常. 重要的是你可以想用多少进程就用多少, 而非受限于系统可以承受多少. 你可以这样试着比较一下, 假如在一门面向对象的语言中你最多只能同时有 32 个对象, 你肯定很快就会觉得完全不够用了. 使用大量且轻量的进程使我们能以更细的粒度处理故障, 对于我们想要反过来利用故障和崩溃之类的也非常有用.
+Erlang 进程也非常轻量, 启动成千上万个稀松平常. 重点是你想用多少进程就能用多少, 而不是受限于系统可以承受多少. 你可以这样试着比较一下, 假如在一门面向对象的语言中你最多只能同时有 32 个对象, 你肯定很快就会觉得完全不够用了. 使用大量且轻量的进程使我们能以更细的粒度处理故障, 对于我们想要反过来利用故障和崩溃之类的也非常有用.
 
 Now it can be a bit weird to picture how these processes work exactly. When you write a C program, you have one big main() function that does a lot of stuff. This is your entry point into the program. In Erlang, there is no such thing. No process is the designated master of the program. Every one of them runs a function, and that function plays the role of main() within that single process.
 
@@ -76,17 +76,17 @@ Now it can be a bit weird to picture how these processes work exactly. When you 
 
 We now have that swarm of bees, but it is probably very hard to direct them to strengthen the hive if they cannot communicate in any way. Where bees dance, Erlang processes pass messages.
 
-我们现在有了蜂群, 但如果它们无法彼此交流就很难指挥它们一同构筑蜂巢. 蜜蜂通过舞蹈来交流, Erlang 进程则通过传递｢消息｣.
+那么我们现在有了｢蜂群｣, 但如果它们无法彼此交流就很难指挥它们一同构筑蜂巢. 蜜蜂通过舞蹈来交流, Erlang 进程则通过传递｢消息｣.
 
 ![Message Passing](/static/zen_of_erlang/006.png)
 
 Message passing is the most intuitive form of communication in a concurrent environment there is. It's the oldest one we've worked with, from the days where we wrote letters and sent them via couriers on horse to find their destination, to fancier mechanisms like the Napoleonic semaphores shown on the slide. In this case you'd just take a bunch of guys up into towers, give them a message, and they'd wave flags around to pass data over long distances in ways that were faster than horses, which could tire. This eventually got replaced by the telegraph, which got replaced by the phone and the radio, and now we have all the fancy technologies to pass messages really far and really fast.
 
-消息传递是并发环境下最为直观的通讯方式. 这也是人类最古老的通讯方式, 从骑着马的信使带着我们的信件奔向目的地, 到一些更酷的像是图片里面的｢拿破仑旗语｣之类的方法. 马匹终究会疲惫, 但旗语却可以快速地将一条消息传递很长的距离. 当然了, 后来这些渐渐被电报所取代, 然后是无线电和电话, 如今我们有了更多更先进的技术, 能够以前所未有的速度向难以想像的远方传递消息.
+消息传递是并发环境下最为直观的通讯方式. 这也是人类最古老的通讯方式, 从骑着马的信使带着我们的信件奔向目的地, 到一些更酷的像是图片里面的｢拿破仑旗语｣之类的方法都是一种消息传递的方法. 马匹终究会疲惫, 但旗语却可以快速地将一条消息传递到远方. 当然了, 后来这些方法渐渐被电报所取代, 然后是无线电和电话, 如今我们有了更多更先进的技术, 能够以前所未有的速度向难以想像的远方传递消息.
 
 A critical aspect of all this message passing, especially in the olden days, is that everything was asynchronous, and with the messages being copied. No one would stand on their porch for days waiting for the courier to come back, and no one (I suspect) would sit by the semaphore towers waiting for responses to come back. You'd send the message, go back to your daily activities, and eventually someone would tell you you got an answer back.
 
-这种消息传递的方式很重要的一点 - 特别是在旧时代 - 就是大家都是｢异步｣的, 只有消息被｢复制｣了. 一般没人会一直站在门口等待回信, 也不会有人一直守在信号塔上等待回复. 你发出一条消息, 接着干平常的事情, 当有回复的时候自会有人通知你.
+这种消息传递的方式中很重要的一点 - 特别是在旧时代 - 就是大家都是｢异步｣的, 而消息被｢复制｣了. 一般没人会一直站在门口等待回信, 也不会有人一直守在信号塔上等待回复. 你发出一条消息, 接着干平常的事情, 当有回复的时候自会有人通知你.
 
 This is good because if the other party doesn't respond, you're not stuck doing nothing but waiting on your porch until you die. Conversely, the receiver on the other end of the communication channel does not see the freshly arrived message vanish or change as by magic if you do die. Data should be copied when messages are sent. These two principles ensure that failure during communication does not yield a corrupted or unrecoverable state. Erlang implements both of these.
 
@@ -94,17 +94,17 @@ This is good because if the other party doesn't respond, you're not stuck doing 
 
 To read messages, each process has a single mailbox. Everyone can write to a process' mailbox, but only the owner can look into it. The messages are by default read in the order they arrived, but it is possible, through features such as pattern matching [which were discussed in a prior talk during the day] to only or temporarily focus on one kind of message and drive various priorities around.
 
-每个进程都会从自己的｢信箱｣中读取消息. 一个进程可以向任意其他进程的信箱中写入消息, 但只能读取自己的信箱中收到的消息. 默认情况下进程会按照消息被收到的顺序依次读取, 但也可以通过模式匹配 (pattern matching [^3]) 之类的方式来重点关注某些消息.
+每个进程都会从自己的｢信箱｣中读取消息. 一个进程可以向任意其他进程的信箱中写入消息, 但只能从自己的信箱中读取. 默认情况下进程会按照消息被收到的顺序依次读取, 但也可以通过模式匹配 [^3] 之类的方式来重点关注某些消息.
 
 ![Links & Monitors](/static/zen_of_erlang/007.png)
 
 Some of you will have noticed something in what I have mentioned so far; I keep repeating that isolation and independence are great so components of a system are allowed to die and crash without influencing others, but I did also mention having conversations across many processes or agents.
 
-可能在座的有些人从我刚刚所讲过的内容中听出了什么端倪. 我一直反复地讲隔离性和独立性多么多么的好, 它们能让一个系统的各个组件崩溃挂掉却不会影响到其他部分. 但同时我又讲了这么多进程之间该如何通信.
+可能有人已经从我刚刚所讲过的内容中听出了端倪. 我一直反复地讲隔离性和独立性多么多么的好, 它们能让一个系统的各个组件崩溃挂掉却不会影响到其他部分. 但同时我又讲了这么多进程之间是如何通信的.
 
 Every time two processes start having a conversation, we create an implicit dependency between them. There is some implicit state in the system that binds both of them together. If process A sends a message to process B and B dies without responding, A can either wait forever, or give up on having a conversation after a while. The latter is a valid strategy, but it's a very vague one: it is unclear if the remote end has died or is just taking long, and off-band messages can land in your mailbox.
 
-每当两个进程之间有所通信的时候, 我们实际上就隐式地在两者之间创建了｢依赖｣. 这种依赖可以说在系统中也留下了隐式的｢状态｣. 如果进程 A 发给进程 B 一条消息, 然而 B 还没回应就挂掉了, 这时候 A 有两种选择, 要么一直等下去, 要么等一段时间后就放弃. 一般来说后面这种比较可取, 但这种策略还不够明确: 即我们无法确切地得知究竟 B 真的挂掉了还是只是这一条消息要花比较久才能够回复, 如果只是计算较慢可能在 A 放弃后 B 才发来回复, 这种情况下这条回复就会永远留在 A 的信箱里无人处理了.
+每当两个进程之间有所通信的时候, 我们实际上就已经隐式地在两者之间创建了｢依赖｣. 这种依赖可以说在系统中也留下了隐式的｢状态｣. 如果进程 A 发给进程 B 一条消息, 然而 B 还没回应就挂掉了, 这时候 A 有两种选择, 要么一直等下去, 要么等超时后放弃. 一般来说后面这种比较可取, 但这种策略还不够明确: 即我们无法确切地得知究竟 B 真的挂掉了还是 B 要花很久才能够回复, 如果只是处理较慢, 那么可能在 A 放弃了之后 B 又发来回复, 这种情况下这条消息就会永远留在 A 的信箱里无人处理了.
 
 Instead Erlang gives us two mechanisms to deal with this: monitors and links.
 
@@ -112,15 +112,15 @@ Instead Erlang gives us two mechanisms to deal with this: monitors and links.
 
 Monitors are all about being an observer, a creeper. You decide to keep an eye on a process, and if it dies for whatever reason, you get a message in your mailbox telling you about it. You can then react to this and make decisions with your newly found information. The other process will never have had an idea you were doing all of this. Monitors are therefore fairly decent if you're an observer or care about the state of a peer.
 
-监控诚如其名, 就是让一个进程变成观察者. 你可以一直关注某个进程, 一旦它挂掉了, 你就会收到一条包含具体原因的消息. 之后你就可以根据消息中提供的信息决定要采取些什么对策. 被监控的进程完全不会知晓你所在做的这些事. 所以如果你在意某个进程的死活, 监控是一种蛮不错的手段.
+监控诚如其名, 就是让一个进程变成观察者. 你可以一直关注某个进程, 一旦它挂掉了, 你就会收到一条包含具体原因的消息. 之后你就可以根据消息中提供的信息决定要采取些什么对策. 被监控的进程完全不会知晓监控者的行为. 所以如果你只是在意某个进程的死活, 监控是一种蛮不错的手段.
 
 Links are bidirectional, and setting one up binds the destiny of the two processes between which they are established. Whenever a process dies, all the linked processes receive an exit signal. That exit signal will in turn kill the other processes.
 
-链接则是双向的, 设置了链接的两个进程的｢命运｣将紧密相连. 一旦其中一个进程挂掉, 所有与其建立了链接的进程都会收到退出信号, 从而跟随这个进程一同死掉.
+链接则是双向的, 建立了链接的两个进程的｢生死｣将紧密相连. 一旦其中一个进程挂掉, 所有与其建立了链接的进程都会收到退出信号, 从而跟随这个进程一同死掉.
 
 Now this gets to be really interesting because I can use monitors to quickly detect failures, and I can use links as an architectural construct letting me tie multiple processes together so they fail as a unit. Whenever my independent building blocks start having dependencies among themselves, I can start codifying that into my program. This is useful because I prevent my system from accidentally crashing into unstable partial states. Links are a tool letting developers ensure that in the end, when a thing fails, it fails entirely and leaves behind a clean slate, still without impacting components that are not involved in the exercise.
 
-现在我们可以用监控来快速检测故障, 还可以用链接作为一种组建架构的手段, 将若干个进程绑定在一起, 有故障时一齐杀掉. 当系统中原本独立的模块开始彼此产生依赖时, 我可以将这种依赖写入程序代码中. 而这可以防止系统由于意外的崩溃进入不稳定的或不完整的状态. 链接作为一种工具可以让开发者确保当系统的一部分有故障时, 这一部分会整个关闭而不会污染整个系统的状态, 同时也不会殃及与这部分本不相关的其他组件.
+于是我们可以用监控来快速检测故障, 可以用链接作为一种组建架构的手段, 将若干个进程绑定在一起, 有故障时一齐杀掉. 当系统中原本独立的模块开始彼此产生依赖时, 我可以将这种依赖写入程序代码中. 而这可以防止系统由于意外的崩溃进入不稳定的或不完整的状态. 链接作为一种工具可以让开发者确保当系统的一部分有故障时, 这一部分会统一关闭而不会污染整个系统的状态, 同时也不会殃及与这部分本不相关的其他组件.
 
 For this slide, I picked a picture of mountain climbers roped together. Now if mountain climbers only had links between them, they would be in a sorry state. Every time a climber from your team would slip, the rest of the team would instantly die. Not a great way to go about things.
 
@@ -128,7 +128,7 @@ For this slide, I picked a picture of mountain climbers roped together. Now if m
 
 Erlang instead lets you specify that some processes are special and can be flagged with a `trap_exit` option. They can then take the exit signals sent over links and transform them into messages. This lets them recover faults and possibly boot a new process to do the work of the former one. Unlike mountain climbers, a special process of that kind cannot prevent a peer from crashing; that is the responsibility of that peer by using `try ... catch` expressions, for example. A process that traps exits still has no way to go play in another one's memory and save it, but it can avoid dying of it.
 
-实际上 Erlang 可以让你指定一些特殊的进程, 通过一个叫 `trap_exit` 的选项. 这些特殊进程可以捕获链接所导致的退出信号, 并把它们转换为消息. 从而它们可以修复一些故障, 比如说启动新的进程来继续挂掉的进程的工作. 不像真正的登山者那样, 这样的特殊进程并不能阻止与其链接的进程崩溃 - 要阻止崩溃你可能需要写类似 `try ... catch` 之类的语句, 当然是在可能会崩溃的那个进程里 - 一个激活了｢捕获退出信号｣的特殊进程不能进入其他进程的内存然后阻止其崩溃, 但却可以避免它｢灭亡｣.
+实际上 Erlang 可以让你指定一些特殊的进程, 通过一个叫 `trap_exit` 的选项. 这些特殊进程可以捕获链接所导致的退出信号, 并把它们转换为消息. 因而它们可以做一些故障修复的工作, 比如说启动新的进程来继续挂掉的进程的工作. 不像真正的登山者那样, 这样的特殊进程并不能阻止与其链接的进程崩溃 - 这需要在会崩溃的那个进程里写类似 `try ... catch` 之类的语句 - 一个激活了｢捕获退出信号｣的特殊进程不能进入其他进程的内存然后阻止其崩溃, 但却可以避免它｢灭亡｣.
 
 This turns out to be a critical feature to implement supervisors. If you haven't heard of them, we'll get to them soon enough.
 
@@ -138,7 +138,7 @@ This turns out to be a critical feature to implement supervisors. If you haven't
 
 Before going to supervisors, we still have a few ingredients to be able to successfully cook a system that leverages crashes to its own benefit. One of them is related to how processes are scheduled. For this one, the real world use case I want to refer to is Apollo 11's lunar landing.
 
-讲解监督者之前, 我们还需要再聊几样东西, 少了它们还是没法真正地｢化崩溃为神奇｣. 首先是进程如何调度, 我就拿阿波罗11的月球登陆来举例吧.
+讲解监督者之前, 我们还需要再聊其他几样东西, 少了它们还是没法真正地｢化崩溃为神奇｣. 首先是进程如何调度, 我就拿阿波罗11的月球登陆来举例吧.
 
 Apollo 11 is the mission that went to the moon in '69. In the slide right there, we see the lunar module with Buzz Aldrin and Neil Armstrong on board, with a photo taken by a person I assume to be Michael Collins, who stayed in the command module for the mission.
 
@@ -146,79 +146,79 @@ Apollo 11 is the mission that went to the moon in '69. In the slide right there,
 
 While on their way to land on the moon, the lunar module was being guided by the Apollo PGNCS (Primary Guidance, Navigation and Control System). The guidance system had multiple tasks running on it, taking a carefully accounted for number of cycles. NASA had also specified that the processor was only to be used to 85% capacity, leaving 15% free.
 
-登月舱飞往月球时应该是由 Apollo PGNCS (Primary Guidance, Navigation and Control System) 所引导的. 导航系统要同时运行若干个任务, 每个任务都有严格分配的循环数. NASA 特别指定了处理器只能用85%的运算力, 剩余的15%以应对紧急情况.
+登月舱飞往月球时应该是由 Apollo PGNCS (Primary Guidance, Navigation and Control System) 所引导的. 导航系统要同时运行若干个任务, 每个任务都有严格分配的循环数. NASA 特别指定了处理器只能用85%的运算力, 剩余15%以应对紧急情况.
 
 Now because the astronauts in this case wanted a decent backup plan in case they needed to abort, they had left a rendezvous radar up in case it would come in handy. That took up a decent chunk of the capacity the CPU had left. As Buzz Aldrin started entering commands, error messages would pop up about overflow and basically going out of capacity. If the system was going haywire on this, it possibly couldn't do its job and we could end up with two dead astronauts.
 
-宇航员们想制订一个比较稳妥的备用计划来应对任务中止的情况, 他们预留了一个也许会有用的交会雷达. 那家伙用了 CPU 剩余性能的一大部分. 当巴兹·奥尔德林开始输入命令的时候, 各种关于溢出和资源耗尽的错误信息层出不穷. 假如这时候系统失去控制的话, 可能其他组件就无法完成它们的任务, 最后我们就要面对两具宇航员的尸体了.
+宇航员们想制订一个比较稳妥的备用计划来应对任务中止的情况, 他们预留了一个交会雷达. 那家伙用掉了 CPU 剩余性能的一大部分. 当巴兹·奥尔德林开始输入命令的时候, 各种关于溢出和资源耗尽的错误信息层出不穷. 假如这时候系统失去控制的话, 可能其他组件就无法完成它们的任务, 最后我们就要面对两具宇航员的尸体了.
 
 This was mostly because the radar had known hardware bugs causing its frequency to be mismatched with the guidance computer, and caused it to steal far more cycles than it should have had otherwise. Now NASA people weren't idiots, and they reused components with which they knew the rare bugs they had rather than just greenfielding new tech for such a critical mission, but more importantly, they had devised priority scheduling.
 
-这主要是因为那个雷达有已知的硬件问题, 导致其频率和导航电脑的不符, 进而导致其使用了远多于应该使用的 CPU 循环. 不过 NASA 的人也不是笨蛋, 他们没有为这种重量级的任务去开发过多的新技术, 而是再利用了以前的组件, 那些就算是稀有故障他们也了如指掌的东西. 更重要的是, 他们发明了｢优先级调度｣.
+这主要是因为那个雷达有已知的硬件问题, 导致其频率和导航电脑的不符, 进而使用了远多于预计的 CPU 循环. 不过 NASA 的人也不是笨蛋, 他们没有为这种重量级的任务去开发过多的新技术, 而是再利用了以前的组件, 那些就算是稀有故障他们也了如指掌的东西. 更重要的是, 他们发明了｢优先级调度｣.
 
 This meant that even in the case where either this radar or possibly the commands entered were overloading the processor, if their priority were too low compared to the absolutely life-critical stuff, the task would get killed to give CPU cycles to what really, really needed it. That was in 1969; today there's still plenty of languages or frameworks that give you only cooperative scheduling and nothing else.
 
-这意味着导致了处理器过载的不论是这个有故障的雷达或者甚至是宇航员所输入的命令, 只要其优先级与那些绝对重要的东西比起来足够低的话, 系统就会杀掉这些任务, 而给那些真正需要的任务腾出 CPU 循环. 那还是 1969 年; 时至今日还有好多语言或框架只提供了协同调度.
+这意味着导致处理器过载的不论是这个有故障的雷达还是宇航员所输入的命令, 只要其优先级与那些绝对重要的东西比起来足够低的话, 系统就会杀掉这些任务, 而给那些真正需要的任务腾出 CPU 循环. 要知道那还是 1969 年; 而时至今日还有好多语言或框架只提供了协同调度.
 
 Erlang is not a language you'd use for life-critical systems — it only respects soft-real time constraints, not hard real time ones and it just wouldn't be a good idea to use it in these scenarios. But Erlang does provide you with preemptive scheduling, and with process priorities. This means that you do not have to care, as a developer or system designer, about making sure that absolutely everyone carefully counts all the CPU usage they're going to be doing across all their components (including libraries you use) to ensure they don't stall the system. They just won't have that capacity. And if you need some important task to always run when it must, you can also get that.
 
-虽然你不应该用 Erlang 去编写这些关乎性命的系统 - Erlang 只遵循了软实时系统的约束, 而非硬实时, 所以这些情景下不要用 Erlang. 但 Erlang 确实提供了抢占式调度, 以及进程优先级. 这意味着对于系统设计者来说你无需仔细确认每个组件(包括你用的库)所使用的 CPU 资源, 它们不会导致整个系统挂起. 同时假如你真的需要, 也可以让一些重要的任务要优先运行.
+虽然你不应该用 Erlang 去编写这些关乎性命的系统 - Erlang 只遵循了软实时系统的约束, 而非硬实时, 所以这些情景下不要用 Erlang. 但 Erlang 确实提供了抢占式调度, 以及进程优先级. 这意味着对于系统设计者来说你无需仔细确认每个组件(包括你用到的库)所使用的 CPU 资源, 它们不会导致整个系统挂起. 同时假如你真的需要, 也可以指定一些重要的任务优先运行.
 
 This may not seem like a big or common requirement, and people still ship really successful projects only with cooperative scheduling of concurrent tasks, but it certainly is extremely valuable because it protects you against the mistakes of others, and also against your own mistakes. It also opens up the door to mechanisms like automated load-balancing, punishing or rewarding good and bad processes or giving higher priorities to those with a lot of work waiting for them. Those things can end up giving you systems that are fairly adaptive to production loads and unforeseen events.
 
-这些可能听起来不是什么很重要的需求, 有很多成功的项目构建在只有协同调度的并发任务之上, 但抢占式调度也有很大的价值, 它可以从别人乃至你自己的错误中保护整个系统. 它还可以帮助你构建类似自动负载均衡, 好坏进程的惩罚奖赏或是提高那些任务很多的进程的优先级等等. 这些功能可以让你的系统更加从容地面对生产环境中变幻莫测的负载或无法预见的问题.
+这些听起来可能不是什么很重要的需求, 确实有很多成功的项目构建在只有协同调度的并发任务之上, 但抢占式调度也有很大的价值, 它可以从别人乃至你自己的错误中保护整个系统. 它还可以帮助你构建类似自动负载均衡, 好坏进程的惩罚奖赏或是提高那些任务繁重的进程的优先级等等. 这些功能可以让你的系统更加从容地面对生产环境中变幻莫测的负载以及其他无法预见的问题.
 
 ![Network Aware](/static/zen_of_erlang/009.png)
 
 The last ingredient I want to discuss in getting decent fault tolerance is network awareness. In any system we develop that we need to stay up for long periods of time, having more than one computer to run it on quickly becomes a prerequisite. You don't want to be sitting there with your own golden machine locked behind titanium doors, unable to tolerate any disruption with effecting your users in major ways.
 
-有关构建高容错性系统我最后想说的一点是｢网络认知｣ (network awareness). 在我们想要构建的任何要保持长期在线的系统中, 多台机器构建的网络都可说已成为了前提条件. 哪怕你有一台性能超强的机器, 当它出现问题的时候也就会不可避免地影响到你的用户.
+有关构建高容错性系统我最后想说的一点是｢网络认知｣ (network awareness). 在我们想要构建的任何要保持长期在线的系统中, 由多台机器构建的网络(集群)都可说已成为了前提条件. 哪怕你有一台性能超强的机器, 当它出现问题的时候也就不可避免地会影响到你的用户.
 
 So you eventually need two computers so one can survive a broken other, and maybe a third one if you want to deploy with broken computers part of your system.
 
-所以你最少也要两台机器, 这样一台有问题的时候另一台可以顶上. 假如说部署的时候就有坏掉的机器, 那你可能就要三台才能保证系统的正常运转.
+所以你最少也要两台机器, 这样一台有问题的时候另一台可以顶上. 若是考虑到部署的时候就有坏掉的机器, 那就要三台才能保证系统的持续运转.
 
 The plane on the slide is the F-82 twin mustang, an aircraft that was designed during the second world war to escort bombers over ranges most other fighters just couldn't cover. It had two cockpits so that pilots could take over and relay each other over time when tired; at some point they also fit it so one would pilot while the other would operate radars in an interceptor role. Modern aircrafts still do something similar; they have countless failovers, and often have crew members sleeping in transit during flight time to make sure there's always someone who's alert ready to pilot the plane.
 
-这一页上的飞机是一架 F-82 ｢双生野马｣, 这种二战时期设计出来的重型战斗机用于掩护长距离的轰炸机, 当时绝大多数其他战斗机都没法非这么长的距离. 它有两个驾驶舱, 因此飞行员们可以轮流休息; 或者可以一组操纵飞机, 另一组操作雷达, 变成类似拦截机的角色. 现代的飞机其实也有类似之处, 它们有数不胜数的故障转移机制, 也常常有可以换班的飞行员在舱内休息, 以便随时有清醒的人可以应对紧急情况.
+这一页上的飞机是一架 F-82 ｢双生野马｣, 这种二战时期设计出来的重型战斗机用于掩护执行长距离任务的轰炸机, 当时绝大多数战斗机都没法飞这么长的距离. 而 F-82 有两个驾驶舱, 因此飞行员们可以轮流休息; 或者可以一组操纵飞机, 另一组操作雷达, 变成类似拦截机的角色. 现代的飞机其实也有类似之处, 它们有数不胜数的故障转移机制, 也常常有可以换班的飞行员在舱内休息, 以便随时有清醒的人来应对紧急情况.
 
 When it comes to programming languages or development environments, most of them are designed ignoring distribution altogether, even though people know that if you write a server stack, you need more than one server. Yet, if you're gonna use files, there's gonna be stuff in the standard library for that. The furthest most languages go is giving you a socket library or an HTTP client.
 
-尽管人们都知道写服务器的话怎么也要几台机器, 很多语言或平台依然忽略着分布式的功能. 不像文件操作, 大多数语言都有标准库之类的可以直接使用, 大多数语言最多就是提供套接字库或者 HTTP 客户端.
+尽管人们都知道写服务器的话怎么也要几台机器, 很多语言或平台依然忽略着分布式的功能. 基本上所有语言都有标准库之类的可以直接进行比如文件操作, 然而其中的大多数对于网络功能最多就是提供一个套接字库或者 HTTP 客户端.
 
 Erlang acknowledges the reality of distribution and gives you an implementation for it, which is documented and transparent. This lets people set up fancy logic for failing over or taking over applications that crash to provide more fault tolerance, or even lets other languages pretend they are Erlang nodes to build polyglot systems.
 
-Erlang 不但认识到分布式的重要性, 还提供了一整套文档完善且透明的实现. 你可以在此之上控制如何故障转移, 或由另一个节点接管某个崩溃的应用等等从而实现更高的容错性. 甚至还可以让其他语言接入 Erlang 的分布式系统中, 构建一个多种语言混合的系统.
+Erlang 认识到了分布式的重要性, 并提供了一整套文档完善代码透明的实现. 你可以在此之上控制如何进行故障转移, 或是由另一个节点接管某个崩溃的应用等等从而实现更高的容错性. 甚至还可以让其他语言接入 Erlang 的分布式系统中, 构建一个多种语言混合的系统.
 
 ![Let it crash.](/static/zen_of_erlang/010.png)
 
 So those are all the basic ingredients in the recipe for Erlang Zen. The whole language is built with the purpose of taking crashes and failures, and making them so manageable it becomes possible to use them as a tool. Let it crash starts making sense, and the principles seen here are for the most part things that can be reused as inspiration in non-Erlang systems.
 
-那么这些就是 Erlang ｢禅宗｣的一些基本要素. 整个语言构建在处理崩溃之上, 将它们变的如此可控从而可以当作一种组建系统的工具. Let it crash 开始有那么点儿道理了, 这里面的一些原理也可以作为其他非 Erlang 系统的灵感.
+以上是要达成 Erlang ｢禅宗｣的一些基本要素. 整个语言构建在处理崩溃之上, 将它们变的如此可控从而可以当作一种组建系统的工具. Let it crash 开始有那么点儿道理了, 这里面的一些原理也可以给其他非 Erlang 系统提供些灵感.
 
 How to compose them together is the next challenge.
 
-如果将所有这些要素融合在一起是下一个挑战.
+如何将所有这些要素融合在一起是下一个挑战.
 
 ![Supervision Trees](/static/zen_of_erlang/011.png)
 
 Supervision trees is how you impose structure to your Erlang programs. They start with a simple concept, a supervisor, whose only job is to start processes, look at them, and restart them when they fail. By the way, supervisor are one of the core components of 'OTP', the general development framework used in the name 'Erlang/OTP'.
 
-监督树是在 Erlang 程序中添加结构的方式. 它们从监督者这个简单的概念开始, 还记得吧, 监督者唯一的工作就是启动子进程, 监控它们, 当它们出故障时重启. [^4]
+监督树 Erlang 程序组织结构的方式. 监督树从监督者这个简单的概念开始, 监督者唯一的工作就是启动并监视子进程, 当它们出故障时重启. [^4]
 
 The objective of doing that is to create a hierarchy, where all the important stuff that must be very solid accumulate closer to the root of the tree, and all the fickle stuff, the moving parts, accumulate at the leaves of the tree. In fact, that's what most trees look like in real life: the leaves are mobile, there's a lot of them, they can all fall down in autumn, the tree stays alive.
 
-如此, 我们可以构建这样的一个层级关系, 那些非常重要的, 必须十分可靠的东西靠近树根, 而那些易变的部分聚集在树叶附近. 这其实跟现实世界中的大多数树很像: 树叶是活动的, 树叶很多, 树叶秋天的时候全都掉下来了, 然而树本身一直活着.
+监督树的用处在于构建这样的一个层级关系, 那些非常重要的, 必须十分可靠的东西靠近树根, 而那些易变的部分聚集在树叶附近. 这其实跟现实世界中的树很像: 树叶是活动的, 树叶很多, 树叶秋天的时候全都掉下来了, 然而树本身一直活着.
 
 That means that when you structure Erlang programs, everything you feel is fragile and should be allowed to fail has to move deeper into the hierarchy, and what is stable and critical needs to be reliable is higher up.
 
-所以当你组织 Erlang 程序的时候, 那些你感觉不稳固的和可以出错的部分要尽可能放在较低的层级, 在高的层级上放那些需要稳定性的重要的部分.
+同样地, 在你组织 Erlang 程序时, 那些你感觉不稳固的和可以出错的部分要尽可能放在较低的层级, 在较高的层级上放那些需要稳定性的重要部分.
 
 ![Supervisors](/static/zen_of_erlang/012.png)
 
 Supervisors can do that through usage of links and trapping exits. Their job begins with starting their children in order, depth-first, from left to right. Only once a child is fully started does it go back up a level and start the next one. Each child is automatically linked.
 
-监督者通过使用链接和捕获退出信号工作. 它们的任务首先是从左至右, 以深度优先逐次启动其子进程. 只有前一个子进程完全启动成功时它才会进一步启动下一个子进程. 每一个子进程都会自动链接到监督者.
+监督者通过使用链接和捕获退出信号工作. 它们的任务首先是从左至右, 以深度优先的顺序逐次启动其子进程. 只有前一个子进程完全启动成功之后它才会启动下一个子进程. 每一个子进程都会自动与其监督者建立链接.
 
 Whenever a child dies, one of three strategies is chosen. The first one on the slide is 'one for one', enacted by only replacing the child process that died. This is a strategy to use whenever the children of that supervisor are independent from each other.
 
@@ -226,11 +226,11 @@ Whenever a child dies, one of three strategies is chosen. The first one on the s
 
 The second strategy is 'one for all'. This one is to be used when the children depend on each other. When any of them dies, the supervisor then kills the other children before starting them all back. You would use this when losing a specific child would leave the other processes in an uncertain state. Let's imagine a conversation between three processes that ends with a vote. If one of the process dies during the vote, it is possible that we have not programmed any code to handle that. Replacing that dead process with a new one would now bring a new peer to a table that has no idea what is going on either!
 
-第二种策略是 `one_for_all`. 子进程互相都有依赖时就应当使用这种策略. 任何一个子进程挂掉时, 监督者首先杀掉其他的所有子进程, 然后再重新启动它们. 具体来说, 当一个子进程出问题会导致其他进程进入异常状态的时候就应当用这种策略. 比方说三个进程在讨论和投票. 我们可能没有编写处理投票时某个进程挂掉的代码. 这时如果仅仅重启挂掉的那个进程, 新的进程根本无法继续完成之前的任务.
+第二种策略是 `one_for_all`. 子进程互相都有依赖时就应当使用这种策略. 任何一个子进程挂掉时, 监督者首先杀掉其他所有的子进程, 然后再重新启动它们. 具体来说, 当一个子进程出问题会导致其他进程进入异常状态的时候就应当用这种策略. 比方说三个进程在讨论和投票. 我们可能没有编写处理投票时某个进程挂掉的代码. 这时如果仅仅重启挂掉的那个进程, 新的进程根本无法继续之前的任务.
 
 This inconsistent state is possibly dangerous to be in if we haven't really defined what goes on when a process wreaks havoc through a voting procedure. It is probably safer to just kill all processes, and start afresh from a known stable state. By doing so, we're limiting the scope of errors: it is better to crash early and suddenly than to slowly corrupt data on a long-term basis.
 
-假如我们没有定义投票时一个进程搞破坏的情况, 类似这样的不一致状态会是非常危险的. 这时杀掉所有相关的进程, 从已知的稳定状态开始也许更安全. 同时这也可以限制出错的范围: 尽可能早的崩溃要比让坏掉的进程慢慢破坏数据要好的多.
+假如我们没有定义投票时一个进程搞破坏的情况, 类似这样的不一致状态将是非常危险的. 这时杀掉所有相关的进程, 从已知的稳定状态开始会更安全. 同时这也可以限制出错的范围: 尽可能早的崩溃要比让坏掉的进程慢慢破坏数据要好的多.
 
 The last strategy happens whenever there is a dependency between processes according to their booting order. Its name is 'rest for one' and if a child process dies, only those booted after it are killed. Processes are then restarted as expected.
 
@@ -238,21 +238,21 @@ The last strategy happens whenever there is a dependency between processes accor
 
 Each supervisor additionally has configurable controls and tolerance levels. Some supervisors may tolerate only 1 failure per day before aborting while others may tolerate 150 per second.
 
-每个监督者还可以单独配置容错度. 比如一些重要层级上的监督者可能一天最多允许出现一次故障, 而其他的也许一秒种出现150次也没关系.
+每个监督者还可以单独配置容错度. 比如一些重要层级上的监督者可能一天最多只允许出现一次故障, 而其他的也许一秒种出现150次也没关系.
 
 ![Heisenbugs](/static/zen_of_erlang/013.png)
 
 The comment that usually comes right after I mention supervisors is usually to the tune of "but if my configuration file is corrupted, restarting won't fix anything!"
 
-通常我解释了监督者之后第一个问题都类似这种: ｢可是如果我的配置文件被破坏了, 重启了也无济于事啊!｣
+通常我解释了监督者之后第一个问题都类似这种: ｢可是如果我的配置文件坏了, 重启也无济于事啊!｣
 
 That is entirely right. The reason restarting works is due to the nature of bugs encountered in production systems. To discuss this, I have to refer to the terms 'Bohrbug' and 'Heisenbug' coined by Jim Gray in 1985 (I do recommend you read as many Jim Gray papers as you can, they're pretty much all great!)
 
-这么说当然没错. 重启之所以能解决一部分问题关系到生产环境中所遇到的问题的本质. 为了解释这个问题, 我需要引用詹姆斯·格雷先生[^5]于1985年提出的一组概念: ｢玻尔 Bug｣ 和 ｢海森堡 Bug｣ (Bohrbug, Heisenbug, 下文不再翻译[^6])
+这么说当然没错. 重启之所以有用关系到生产环境中所遇到的问题的本质. 为了解释这个问题, 我需要引用詹姆斯·格雷先生[^5]于1985年提出的一组概念: ｢玻尔 Bug｣ 和 ｢海森堡 Bug｣ (Bohrbug, Heisenbug, 下文保持英文[^6])
 
 Basically, a bohrbug is a bug that is solid, observable, and easily repeatable. They tend to be fairly simple to reason about. Heisenbugs by contrast, have unreliable behaviour that manifests itself under certain conditions, and which may possibly be hidden by the simple act of trying to observe them. For example, concurrency bugs are notorious for disappearing when using a debugger that may force every operation in the system to be serialised.
 
-简单的说, Bohrbug 是那种固定会发生的, 比较明显的, 很容易重现的错误. 通常也很容易找出错误的原因. 相对的, Heisenbug 的行为很不规律, 往往只有在特殊条件下才会发生, 当你想观测它们的时候又消失不见了. 举例来说, 当你用调试器想要调试一个并发错误时往往它就不发生了, 因为调试器可能强制让整个系统序列化地运行.
+简单的说, Bohrbug 是那种会固定发生的, 比较明显的, 很容易重现的错误. 通常也很容易找出错误的原因. 相对的, Heisenbug 的行为很不规律, 往往只有在特殊条件下才会发生, 当你想｢观测｣它们的时候又消失不见了. 举例来说, 当你用调试器想要调试一个并发错误时往往它就不发生了, 因为调试器可能强制让整个系统序列化地运行.
 
 Heisenbugs are these nasty bugs that happen once in a thousand, million, billion, or trillion times. You know someone's been working on figuring one out for a while once you see them print out pages of code and go to town on them with a bunch of markers.
 
@@ -260,7 +260,7 @@ Heisenbug 就是这种发生率只有千万甚至亿万分之一的错误. 假�
 
 With these terms defined, let's look at what should be their frequencies.
 
-现在你知道它们的含义了, 我们先来看看它们发生的频率.
+现在你知道它们的含义了, 我们先来看看找出他们的难易程度[^fix].
 
 ![Ease of Finding Bugs in Production](/static/zen_of_erlang/014.png)
 
@@ -270,7 +270,7 @@ Here I'm classifying bohrbugs as repeatable, and heisenbugs as transient.
 
 If you have bohrbugs in your system's core features, they should usually be very easy to find before reaching production. By virtue of being repeatable, and often on a critical path, you should encounter them sooner or later, and fix them before shipping.
 
-存在于系统主要特性中的 Bohrbug 往往在部署到生产环境之前就能很容易地发现. 因为它们很容易重现, 又在整个系统的关键部位上, 你早晚都会在发布之前遇到它们并一一修复.
+存在于系统主要特性中的 Bohrbug 往往在部署到生产环境之前就能很容易地发现. 因为它们很容易重现, 又在整个系统的关键代码上, 你早晚都会在发布之前遇到它们并一一修复.
 
 Those that happen in secondary, less used features, are far more of a hit and miss affair. Everyone admits that fixing all bugs in a piece of software is an uphill battle with diminishing returns; weeding out all the little imperfections takes proportionally more time as you go on. Usually, these secondary features will tend to gather less attention because either fewer customers will use them, or their impact on their satisfaction will be less important. Or maybe they're just scheduled later and slipping timelines end up deprioritising their work.
 
@@ -538,3 +538,4 @@ That’s the Zen of Erlang: building interactions first, making sure the worst t
     - 遵循同一套准则的社区
 
 [^11]: OTP
+[^fix]: 这里原文的逻辑似乎有误
