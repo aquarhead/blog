@@ -292,7 +292,7 @@ The next connection I want to make is regarding the frequency each of these type
 
 First of all, easy repeatable bugs in core features should just not make it to production. If they do, you have essentially shipped a broken product and no amount of restarting or support will help your users. Those require modifying the code, and may be the result of some deeply entrenched issues within the organisation that produced them.
 
-首先, 主要特性中反复出现的错误根本不应该出现在生产环境中. 如果有, 就等于是发布了一个有本质缺陷的产品, 不论怎么重启都没用的. 因为这类错误就是代码质量的问题, 也或许是公司里更深层的什么问题吧.
+首先, 主要特性中反复出现的错误根本不应该出现在生产环境中. 如果有, 就等于是发布了一个有本质缺陷的产品, 不论怎么重启都没用的. 因为这类错误就是代码质量的问题, 也或许是系统架构中的深层次问题.
 
 Repeatable bugs in side-features will pretty often make it to production. I do think this is a result of not taking the time to test them properly, but there's also a strong possibility that secondary features often get left behind when it comes to partial refactorings, or that the people behind their design do not fully consider whether the feature will coherently fit with the rest of the system.
 
@@ -346,7 +346,7 @@ With supervisors (rounded squares), we can start creating deep hierarchies of pr
 
 By the order the children are defined, the live reports will not run until the tally tree is booted and functional. The district subtree (about counting results per district) won't run unless the storage layer is available. The storage's cache is only booted if the storage worker pool (which would connect to a database) is operational.
 
-按照子进程定义的顺序, 只有当选票树完成启动开始工作之后实时报告的服务才会启动. 负责分区计数的地区子树要等存储层可用了才能启动. 存储层中的缓存也要等实际连接到数据库的存储工作池可以用了才会启动.
+按照子进程定义的顺序, 只有当选票树完成启动并开始工作之后实时报告的服务才会启动. 负责分区计数的地区子树要等存储层可用了才能启动. 存储层中的缓存也要等实际连接到数据库的存储工作池可以用了才会启动.
 
 The supervision strategies I mentioned earlier let us encode these requirements in the program structure, and they are still respected at run time, not just at boot time. For example, the tally supervisor may be using a one for one strategy, meaning that districts can individually fail without effecting each other's counts. By contrast, each district (Quebec and Ontario's supervisors) could be employing a rest for one strategy. This strategy could therefore ensure that the OCR process can always send its detected vote to the 'count' worker, and it can crash often without impacting it. On the other hand, if the count worker is unable to keep and store state, its demise interrupts the OCR procedure, ensuring nothing breaks.
 
