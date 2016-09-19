@@ -204,7 +204,7 @@ How to compose them together is the next challenge.
 
 Supervision trees is how you impose structure to your Erlang programs. They start with a simple concept, a supervisor, whose only job is to start processes, look at them, and restart them when they fail. By the way, supervisor are one of the core components of 'OTP', the general development framework used in the name 'Erlang/OTP'.
 
-监督树是在 Erlang 程序中添加结构的方式. 它们从监督者这个简单的概念开始, 还记得吧, 监督者唯一的工作就是启动子进程, 监控它们, 但它们出故障时重启. [^4]
+监督树是在 Erlang 程序中添加结构的方式. 它们从监督者这个简单的概念开始, 还记得吧, 监督者唯一的工作就是启动子进程, 监控它们, 当它们出故障时重启. [^4]
 
 The objective of doing that is to create a hierarchy, where all the important stuff that must be very solid accumulate closer to the root of the tree, and all the fickle stuff, the moving parts, accumulate at the leaves of the tree. In fact, that's what most trees look like in real life: the leaves are mobile, there's a lot of them, they can all fall down in autumn, the tree stays alive.
 
@@ -536,4 +536,5 @@ That’s the Zen of Erlang: building interactions first, making sure the worst t
     - 基于属性的测试工具
     - 在线代码升级
     - 遵循同一套准则的社区
+
 [^11]: OTP
