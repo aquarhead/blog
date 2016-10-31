@@ -299,7 +299,7 @@ Erlang 为此提供的方案是 OTP 应用 (Application). OTP 应用基本上只
 
 [^1]: 实在是不了解这些术语是怎么翻译的...
 [^2]: Erlang 的进程不同于一般概念中由操作系统提供的｢进程｣, 下文若非明确提及, ｢进程｣皆特指 Erlang 进程
-[^3]: Pattern Matching 是 Erlang 很｢独特｣同时也非常强大的一个特性, 其直接导致了 Erlang 中函数的写法有别于很多更为常见的语言. 若想详细了解建议阅读 Erlang 或 Elixir 相关的书籍或在线教程等
+[^3]: Pattern Matching 是 Erlang 很｢独特｣同时也非常强大的一个特性, 其直接导致了 Erlang 中函数的写法有别于很多更为常见的语言. 可以从 [Elixir 的官方指南](http://elixir-lang.org/getting-started/pattern-matching.html)中了解一二.
 [^4]: 监督者是 OTP 的一个核心组件, OTP 是 Erlang/OTP 这个常常写在一起的名字里面表示一个通用开发平台的那部分. (虽然全称是 Open Telecom Platform, 但现在一般不在意这层意思, 只称为 OTP)
 [^5]: Jim Gray, [wiki](https://www.wikiwand.com/en/Jim_Gray_(computer_scientist)), Fred 还建议多阅读他的论文, 基本上都写的很好
 [^6]: 对量子力学有所了解的读者看到这两个名字应该会会心一笑吧 :)
