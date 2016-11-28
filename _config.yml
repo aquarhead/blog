@@ -13,3 +13,5 @@ permalink: /:year/:month/:title
 
 # Build settings
 markdown: kramdown
+kramdown:
+  input: GFM
