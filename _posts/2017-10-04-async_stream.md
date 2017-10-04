@@ -56,7 +56,7 @@ end
 
 When `Tesla` receives the response, it uses the `JSON` plug [^1] to decode its `body`, so we'll simply get a list of `system_id`s by calling `get_systems`.
 
-`get_system(system_id)` is a similar story, but in this case, we only care about the security status of a system, so we extract that and only return the system_id with its `security_status`.
+`get_system(system_id)` is a similar story, but in this case, we only care about the security status of a system, so we extract that and only return the `system_id` with its `security_status`.
 
 By returning in a `[{key, value}]` style [^2], we can turn it into a Map of `%{key => value}` using [`Enum.into`](https://hexdocs.pm/elixir/Enum.html#into/2)
 
