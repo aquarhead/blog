@@ -198,6 +198,10 @@
 .post-link {
     display: block;
     font-size: 24px;
+
+    code {
+        font-size: 24px;
+    }
 }
 
 
@@ -214,6 +218,12 @@
     letter-spacing: -1px;
     line-height: 1;
 
+    code {
+        font-size: 39px;
+        letter-spacing: -1px;
+        line-height: 1;
+    }
+
     @include media-query($on-laptop) {
         font-size: 36px;
     }
@@ -225,6 +235,10 @@
     h2 {
         font-size: 32px;
 
+        code {
+            font-size: 29px;
+        }
+
         @include media-query($on-laptop) {
             font-size: 28px;
         }
@@ -232,6 +246,10 @@
 
     h3 {
         font-size: 26px;
+
+        code {
+            font-size: 23px;
+        }
 
         @include media-query($on-laptop) {
             font-size: 22px;
@@ -241,6 +259,10 @@
     h4 {
         font-size: 20px;
 
+        code {
+            font-size: 17px;
+        }
+
         @include media-query($on-laptop) {
             font-size: 18px;
         }
@@ -248,6 +270,10 @@
 
     p {
         font-size: 18px;
+
+        code {
+            font-size: 15px;
+        }
 
         @include media-query($on-laptop) {
             font-size: 16px;
