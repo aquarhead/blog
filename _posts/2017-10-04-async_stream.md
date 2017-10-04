@@ -90,7 +90,7 @@ Notice how little I changed the sequential code to get a concurrent one (and wit
 
 - I changed `Enum.map` to `Task.async_stream`: a [Stream](https://hexdocs.pm/elixir/Stream.html) is just a lazy enumerable (imagine an integer list from 1 to infinity), it only generates/evaluates/executes when and however much you ask it to, (so you ask 2 from the infinite list, it gives you `[1, 2]`, ask 2 more it gives you `[3, 4]` etc..). Now, instead of being mapped to each solar system's actual security status, the list becomes a list of *to-be-executed tasks* (`get_system`). Then, when I further apply any non-lazy functions, it actually starts executing.
 - I then add `Enum.map(fn {:ok, v} -> v end)` to unwrap the result of those to-be-executed tasks, as the documentation says [^3]
-  > "When streamed, each task will emit {:ok, value} upon successful.."
+  > When streamed, each task will emit {:ok, value} upon successful..
 
 And that's it, that's *ALL* the change I need to convert a sequentially, eagerly executed series of [Enumerable](https://hexdocs.pm/elixir/Enumerable.html) operations to a concurrent one.
 
