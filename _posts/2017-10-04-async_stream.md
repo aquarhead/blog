@@ -6,12 +6,12 @@ cn: false
 
 Today a colleague asked me whether I can help him figure out how to use `grequests` and Python 3 to concurrently fetch all [EVE](https://www.eveonline.com/)'s solar systems' security status via [ESI](https://esi.tech.ccp.is/latest/). After a few attempt, we found that Windows cannot handle more than 1024 sockets at the same time, and `grequests` is not clear on how to set a maximum concurrent connections. [^4]
 
-But anyway I'm not a fan of Python things, so I told him I'm gonna write something in Elixir and provide him just the information he needs. Within 30 minutes or so I wrote the whole thing - including looking up a bunch of documentation and waiting for all those 8k queries (only twice though), I felt great the whole time, and I want to write down the entire process and explain how easy it is to do concurrent things with `Task.async_stream`.
+But anyway I'm not a fan of Python things, so I told him I'm gonna write something in Elixir and provide him just the information he needs. Within 30 minutes or so I wrote the whole thing - including looking up a bunch of documentation and waiting for all those 8k queries (only twice though), I felt great the whole time, and I want to write down the entire process and explain how easy it is to do things concurrently with `Task.async_stream`.
 
 So first I make clear the requirements:
 
 - What I want: a [Map](https://hexdocs.pm/elixir/Map.html) of `system_id` -> `security_status`
-- What I have: two ESI endpoints:
+- What I have: two ESI endpoints
   - `/systems/` to get a list of `system_id`s
   - `/systems/{system_id}/` to get information of that system, which has its `security_status`
 
