@@ -52,7 +52,7 @@ def get_system(system_id) do
 end
 ```
 
-`get_systems` will do a GET request to [https://esi.tech.ccp.is/latest/universe/systems/](https://esi.tech.ccp.is/latest/universe/systems/) (because we plugged `BaseUrl`).
+`get_systems` will make a GET request to [https://esi.tech.ccp.is/latest/universe/systems/](https://esi.tech.ccp.is/latest/universe/systems/) (because we plugged `BaseUrl`).
 
 When `Tesla` receives the response, it uses the `JSON` plug [^1] to decode its `body`, so we'll simply get a list of `system_id`s by calling `get_systems`.
 
