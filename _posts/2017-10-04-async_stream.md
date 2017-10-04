@@ -94,7 +94,7 @@ Notice how little I changed the sequential code to get a concurrent one (and wit
 
 And that's it, that's *ALL* the change I need to convert a sequentially, eagerly executed series of [Enumerable](https://hexdocs.pm/elixir/Enumerable.html) operations to a concurrent one.
 
-Note, that by default, for `Task.async_stream`
+Note, that for `Task.async_stream`
 
 > The level of concurrency can be controlled via the `:max_concurrency` option and defaults to `System.schedulers_online/0`.
 
