@@ -4,8 +4,6 @@ title: Introducing ExLogLite
 cn: false
 ---
 
-# Introducing ExLogLite
-
 [ExLogLite](https://hex.pm/packages/ex_loglite) is a [Logger backend](http://elixir-lang.org/docs/stable/logger/Logger.html#module-backends) for Elixir.
 
 When debugging with vanilla log output, the shell/REPL can be really messy if you have a lot of errors happening, and you need to scroll up until you find the first error. I find it a bit uncomfortable, and I want to a tool that can let me better view all the errors.
