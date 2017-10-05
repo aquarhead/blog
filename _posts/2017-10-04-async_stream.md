@@ -35,7 +35,7 @@ end
 
 There's really no magic here, the first two `plug`s setup the base url and headers for each request I'm going to make through this client, and the `JSON` middleware will encode/decode request/response bodies automatically. `Tesla` is very flexible, so you can use different underlying HTTP client, here I'm using [`hackney`](https://hex.pm/packages/hackney).
 
-Then I defined a few meaningful requests we're going to make
+Then I defined a few meaningful request functions
 
 ```elixir
 def get_systems do
@@ -52,13 +52,13 @@ def get_system(system_id) do
 end
 ```
 
-`get_systems` will make a GET request to [https://esi.tech.ccp.is/latest/universe/systems/](https://esi.tech.ccp.is/latest/universe/systems/) (because we plugged `BaseUrl`).
+`get_systems` will make a GET request to [https://esi.tech.ccp.is/latest/universe/systems/](https://esi.tech.ccp.is/latest/universe/systems/) (because I plugged `BaseUrl`).
 
-When `Tesla` receives the response, it uses the `JSON` plug [^1] to decode its `body`, so we'll simply get a list of `system_id`s by calling `get_systems`.
+When `Tesla` receives the response, it uses the `JSON` plug [^1] to decode its `body`, so I'll simply get a list of `system_id`s by calling `get_systems`.
 
-`get_system(system_id)` is a similar story, but in this case, we only care about the security status of a system, so we extract that and only return the `system_id` with its `security_status`.
+`get_system(system_id)` is a similar story, but in this case, I only care about the security status of a system, so I extract that and only return the `system_id` with its `security_status`.
 
-By returning in a `[{key, value}]` style [^2], we can turn it into a Map of `%{key => value}` using [`Enum.into`](https://hexdocs.pm/elixir/Enum.html#into/2)
+By returning in a `[{key, value}]` style [^2], I can turn it into a Map of `%{key => value}` using [`Enum.into`](https://hexdocs.pm/elixir/Enum.html#into/2)
 
 ```elixir
 iex(1)> ESI.Client.get_systems |> Enum.take(5)
