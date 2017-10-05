@@ -77,7 +77,7 @@ ESI.Client.get_systems()
 |> Enum.into(%{})
 ```
 
-But there're 8000+ systems in EVE, so I want to make HTTP requests and process the responses concurrently to utilize both our CPU and network's maximum capacity. This is where [`Task.async_stream`](https://hexdocs.pm/elixir/Task.html#async_stream/5) easily kicks in:
+But there're 8000+ systems in EVE, so I want to make HTTP requests and process the responses concurrently to utilize both my CPU and network's maximum capacity. This is where [`Task.async_stream`](https://hexdocs.pm/elixir/Task.html#async_stream/5) easily kicks in:
 
 ```elixir
 ESI.Client.get_systems()
