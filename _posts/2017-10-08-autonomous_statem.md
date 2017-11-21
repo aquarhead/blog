@@ -25,7 +25,7 @@ Once again I used [my Elixir playground](https://github.com/aquarhead/mashiro_no
 
 `def callback_mode, do: [:state_functions, :state_enter]`
 
-Note: by using enabling it you need to handle the `:enter` message for all states.
+Note: by enabling it you need to handle the `:enter` message for all states.
 
 ## Example
 
