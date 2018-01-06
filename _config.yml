@@ -3,7 +3,7 @@ title: 星のない空
 email: aquarhead@ela.build
 description: >
   終わらない夜に願いはひとつ<br />
-  ｢星のない空に輝く光を｣
+  「星のない空に輝く光を」
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "http://blog.aquarhead.me" # the base hostname & protocol for your site
 port: 4001
