@@ -11,13 +11,13 @@
 }
 
 .site-title {
-    font-size: 26px;
+    font-size: 36px;
     font-weight: 300;
     line-height: 56px;
     letter-spacing: -1px;
     margin-bottom: 0;
     float: left;
-    font-family: 'Hiragino Sans GB', $base-font-family;
+    font-family: 'ten-mincho', $base-font-family;
 
     &,
     &:visited {
@@ -26,7 +26,7 @@
 }
 
 .site-description {
-    font-family: 'Hiragino Sans GB', $base-font-family;
+    font-family: 'ten-mincho', $base-font-family;
     float: right;
 }
 
@@ -108,11 +108,6 @@
     padding: $spacing-unit 0;
 }
 
-.footer-heading {
-    font-size: 18px;
-    margin-bottom: $spacing-unit / 2;
-}
-
 .contact-list,
 .social-media-list {
     list-style: none;
@@ -120,7 +115,7 @@
 }
 
 .footer-col-wrapper {
-    font-size: 15px;
+    font-size: 18px;
     color: $grey-color;
     margin-left: -$spacing-unit / 2;
     @extend %clearfix;
@@ -145,6 +140,7 @@
 }
 
 .footer-col-3 {
+    font-size: 20px;
     width: -webkit-calc(45% - (#{$spacing-unit} / 2));
     width:         calc(45% - (#{$spacing-unit} / 2));
     text-align: right;
