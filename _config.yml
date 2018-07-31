@@ -4,12 +4,14 @@ email: aquarhead@ela.build
 description: >
   終わらない夜に願いはひとつ<br />
   「星のない空に輝く光を」
-baseurl: "" # the subpath of your site, e.g. /blog
-url: "http://blog.aquarhead.me" # the base hostname & protocol for your site
+baseurl: ""
+url: "https://blog.aquarhead.me"
 port: 4001
 twitter_username: aquarhead
 github_username:  aquarhead
 permalink: /:year/:month/:title
+defaults:
+  cn: false
 
 # Build settings
 markdown: kramdown
