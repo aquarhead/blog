@@ -3,13 +3,7 @@
 ---
 @charset "utf-8";
 
-@font-face {
-  font-family: "Fira Code";
-  src:
-    local("Fira Code"),
-    url("https://cdn.rawgit.com/tonsky/FiraCode/master/distr/ttf/FiraCode-Regular.ttf")
-    format("truetype");
-}
+@import "https://www.monolisa.dev/api/fonts/initial";
 
 // Our variables
 $base-font-family: "cronos-pro-display", "ten-mincho-text", "source-han-serif-sc", serif;
