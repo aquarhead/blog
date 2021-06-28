@@ -1,7 +1,6 @@
 ---
 layout: post
 title: Erlang 之禅
-cn: true
 ---
 
 > 本文是在原作者 Fred Hebert 先生的许可下, 对 [_The Zen of Erlang_](http://ferd.ca/the-zen-of-erlang.html) 的简体中文翻译.
@@ -306,7 +305,7 @@ Erlang 为此提供的方案是 OTP 应用 (Application). OTP 应用基本上只
 [^7]: ｢我喜欢静态类型的语言. 遇到没有处理的异常时我会直接重启整个 daemon. Erlang 有什么更好的方案来提供高容错性么?｣
 [^8]: OTP 应用完全可以不包含需要运行起来的监督树, 而只包含一些模块代码
 [^9]: Operation, 我一直觉得翻译成｢运营｣或者是｢运维｣都怪怪的...
-[^10]: 
+[^10]:
     - 模式匹配
     - 函数式编程
     - 可选的类型检查
