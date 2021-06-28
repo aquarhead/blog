@@ -3,10 +3,11 @@
 ---
 @charset "utf-8";
 
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap');
 @import "https://www.monolisa.dev/api/fonts/initial";
 
 // Our variables
-$base-font-family: "cronos-pro-display", "ten-mincho-text", "source-han-serif-sc", serif;
+$base-font-family: "Noto Serif SC", serif;
 $base-font-size:   18px;
 $base-font-weight: 400;
 $small-font-size:  $base-font-size * 0.875;
