@@ -127,6 +127,8 @@ blockquote {
  */
 pre,
 code {
+    font-family: "MonoLisa", monospace;
+    font-feature-settings: "zero", "ss02";
     font-size: 15px;
     border: 1px solid $grey-color-light;
     border-radius: 3px;
@@ -134,7 +136,6 @@ code {
 }
 
 code {
-    font-family: "MonoLisa", monospace;
     padding: 1px 5px;
 }
 
