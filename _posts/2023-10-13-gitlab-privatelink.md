@@ -3,7 +3,7 @@ layout: post
 title: "Building MITM to secure™ GitLab CI traffic"
 ---
 
-Disclaimer: I don't like GitLab, not one bit. But if you're unfortunately in a team called "DevOps" where the company uses GitLab, chances are, you are tasked to run it.
+Disclaimer: I don't like GitLab, not one bit. But if you're unfortunately in a team called "DevOps" where the company uses GitLab, chances are, you are tasked to run it anyway.
 
 ---
 
