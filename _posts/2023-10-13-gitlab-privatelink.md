@@ -115,9 +115,7 @@ It's straightforward to add a new runner in our development environment, and we 
 
 Even though the runner controller comes up fine, the job soon fails:
 
-```
-WARNING: Failed to pull image with policy "": image pull failed: rpc error: code = DeadlineExceeded desc = failed to pull and unpack image "registry.example.com/example/container:v1": failed to resolve reference "registry.example.com/example/container:v1": failed to do request: Head "https://registry.example.com/v2/example/container/manifests/v1": dial tcp 1.2.3.4:443: i/o timeout
-```
+> WARNING: Failed to pull image with policy "": image pull failed: rpc error: code = DeadlineExceeded desc = failed to pull and unpack image "registry.example.com/example/container:v1": failed to resolve reference "registry.example.com/example/container:v1": failed to do request: Head "https://registry.example.com/v2/example/container/manifests/v1": dial tcp 1.2.3.4:443: i/o timeout
 
 At first I was a bit confused because several test on `registry.example.com` works fine, but then my colleague pointed out that IP is the public IP of the registry, so it's not using our modified DNS server, and I soon realized this is not from a pod, this is from a Kubernetes node itself! Of course, the node needs to pull the image first, before firing it up for a pod.
 
@@ -135,9 +133,9 @@ endpoint = ["https://gitlab-registry.privatelink.example.com"]
 
 And now we get a different error!
 
-```
-0s          Warning   Failed                 Pod/runner-jwcvnpwno-project-3719-concurrent-0-8zpbi5qt   Failed to pull image "registry.example.com/example/container:v1": rpc error: code = DeadlineExceeded desc = failed to pull and unpack image "registry.example.com/example/container:v1": failed to resolve reference "registry.example.com/example/container:v1": failed to authorize: failed to fetch oauth token: Post "https://gitlab.example.com/jwt/auth": dial tcp 1.2.3.4:443: i/o timeout
-```
+
+> 0s          Warning   Failed                 Pod/runner-jwcvnpwno-project-3719-concurrent-0-8zpbi5qt   Failed to pull image "registry.example.com/example/container:v1": rpc error: code = DeadlineExceeded desc = failed to pull and unpack image "registry.example.com/example/container:v1": failed to resolve reference "registry.example.com/example/container:v1": failed to authorize: failed to fetch oauth token: Post "https://gitlab.example.com/jwt/auth": dial tcp 1.2.3.4:443: i/o timeout
+
 
 Even though it might look almost the same, the last part - the "root error" - is entirely different, this was another step towards success so I was naturally excited, even though I'm also confused by the error at the same time - why would it try to authenticate, shouldn't it already done so with the runner token?
 
