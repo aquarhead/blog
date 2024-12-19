@@ -7,7 +7,6 @@ description: >
 baseurl: ""
 url: "https://blog.aqd.is"
 port: 4001
-twitter_username: aquarhead
 github_username:  aquarhead
 permalink: /:year/:month/:title
 
