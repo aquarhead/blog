@@ -1,13 +1,11 @@
 # Site settings
 title: 星のない空
-email: aquarhead@gmail.com
 description: >
   終わらない夜に願いはひとつ<br />
   「星のない空に輝く光を」
 baseurl: ""
 url: "https://blog.aqd.is"
 port: 4001
-github_username:  aquarhead
 permalink: /:year/:month/:title
 
 # Build settings
